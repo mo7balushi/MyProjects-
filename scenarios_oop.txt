@@ -1,0 +1,150 @@
+Scenario1 :
+
+CLASS Hospital
+    ATTRIBUTES
+        id : NUMBER
+        name : STRING
+        address : STRING
+        patients : LIST OF Patient
+    METHODS
+        ADMIT_PATIENT(patient : Patient)
+            ADD patient TO patients
+            SET patient.isAdmitted TO true
+            DISPLAY "Patient admitted successfully"
+        END METHOD
+        DISCHARGE_PATIENT(patientId : NUMBER, dischargeDate : STRING)
+            FOR EACH patient IN patients
+                IF patient.id = patientId THEN
+                    SET patient.isAdmitted TO false
+                    SET patient.dischargeDate TO dischargeDate
+                    DISPLAY "Patient discharged successfully"
+                END IF
+            END FOR
+        END METHOD
+        COUNT_ADMITTED_PATIENTS()
+            SET count TO 0
+            FOR EACH patient IN patients
+                IF patient.isAdmitted = true THEN
+                    SET count TO count + 1
+                END IF
+            END FOR
+            DISPLAY count
+        END METHOD
+END CLASS
+
+
+
+
+Scenario2 
+
+CLAS Patient
+    ATTRIBUTES
+        id : NUMBER
+        fullName : STRING
+        dateOfBirth : STRING
+        admissionDate : STRING
+        dischargeDate : STRING
+        isAdmitted : BOOLEAN
+        room : Room
+        procedures : LIST OF Procedure
+    METHODS
+        ADD_PROCEDURE(procedure : Procedure)
+            ADD procedure TO procedures
+            DISPLAY "Procedure added successfully"
+        END METHOD
+        MOVE_TO_ROOM(newRoom : Room)
+            SET room TO newRoom
+            DISPLAY "Patient moved to new room"
+        END METHOD
+        TOTAL_COST_OF_CARE()
+            SET total TO 0
+            FOR EACH procedure IN procedures
+                SET total TO total + procedure.cost
+            END FOR
+            DISPLAY "Total cost is " + total
+        END METHOD
+        DISPLAY_DETAILS()
+            DISPLAY fullName
+            DISPLAY admissionDate
+            DISPLAY dischargeDate
+            DISPLAY room.roomNumber
+        END METHOD
+END CLASS
+
+
+Scenario 3: 
+CLASS Procedure
+    ATTRIBUTES
+        id : NUMBER
+        name : STRING
+        performedDate : STRING
+        doctorName : STRING
+        notes : STRING
+        cost : NUMBER
+    METHODS
+        DESCRIBE_ITSELF()
+            DISPLAY name
+            DISPLAY doctorName
+            DISPLAY performedDate
+            DISPLAY notes
+        END METHOD
+END CLASS
+
+Scenario 4: 
+CLASS Room
+    ATTRIBUTES
+        id : NUMBER
+        roomNumber : STRING
+        wardType : STRING
+        floor : NUMBER
+        bedCount : NUMBER
+    METHODS
+        DISPLAY_ROOM_DETAILS()
+            DISPLAY roomNumber
+            DISPLAY wardType
+            DISPLAY floor
+            DISPLAY bedCount
+        END METHOD
+END CLASS
+__________________________________________________________________________________
+Main Class
+START
+BEGIN
+
+    CREATE OBJECT myHospital OF Hospital
+    SET myHospital.id TO 1
+    SET myHospital.name TO "Muscat Hospital"
+    SET myHospital.address TO "Muscat"
+    SET myHospital.patients TO EMPTY LIST
+    CREATE OBJECT room305 OF Room
+    SET room305.id TO 12
+    SET room305.roomNumber TO "305"
+    SET room305.wardType TO "General"
+    SET room305.floor TO 3
+    SET room305.bedCount TO 2
+    CREATE OBJECT patient1 OF Patient
+    SET patient1.id TO 1
+    SET patient1.fullName TO "Salim Al Rashdi"
+    SET patient1.dateOfBirth TO "14-Feb-1990"
+    SET patient1.admissionDate TO "20-Jun-2026"
+    SET patient1.dischargeDate TO "-"
+    SET patient1.isAdmitted TO true
+    SET patient1.room TO room305
+    SET patient1.procedures TO EMPTY LIST
+    CALL myHospital.ADMIT_PATIENT(patient1)
+    CREATE OBJECT procedure1 OF Procedure
+    SET procedure1.id TO 1
+    SET procedure1.name TO "X-Ray Chest"
+    SET procedure1.performedDate TO "21-Jun-2026"
+    SET procedure1.doctorName TO "Dr. Fatma Al Mamari"
+    SET procedure1.notes TO "No fractures found"
+    SET procedure1.cost TO 25
+    CALL patient1.ADD_PROCEDURE(procedure1)
+    CALL patient1.DISPLAY_DETAILS()
+    CALL procedure1.DESCRIBE_ITSELF()
+    CALL patient1.TOTAL_COST_OF_CARE()
+    DISPLAY "Enter discharge date:"
+    READ dischargeDateInput
+    CALL myHospital.DISCHARGE_PATIENT(1, dischargeDateInput)
+END
+STOP
