@@ -1,0 +1,934 @@
+TASK 278:
+
+CLASS OWNER
+    ATTRIBUTES
+        PRIVATE owner_id: NUMBER
+        PRIVATE name: TEXT
+        PRIVATE phone: TEXT
+        PRIVATE pets: LIST<PET>[]
+    CONSTRUCTOR(ownerId: NUMBER, ownerName: TEXT, ownerPhone: TEXT)
+        SET owner_id TO ownerId
+        SET name TO ownerName
+        SET phone TO ownerPhone
+        SET pets TO EMPTY LIST
+    END CONSTRUCTOR
+    METHODS
+        ADD_PET(newPet: PET)
+            ADD newPet TO pets
+            DISPLAY "PET ADDED SUCCESSFULLY"
+        END METHOD
+        GET_NAME()
+            DISPLAY name
+        END METHOD
+
+        GET_PETS()
+            DISPLAY pets
+        END METHOD
+END CLASS
+
+CLASS SPECIES
+    ATTRIBUTES
+        PRIVATE species_name: TEXT
+        PRIVATE care_requirements: TEXT
+        PRIVATE safe_temperature_min: NUMBER
+        PRIVATE safe_temperature_max: NUMBER
+        PRIVATE safe_heart_rate_min: NUMBER
+        PRIVATE safe_heart_rate_max: NUMBER
+
+    CONSTRUCTOR(speciesName: TEXT, careReq: TEXT, tempMin: NUMBER, tempMax: NUMBER, heartMin: NUMBER, heartMax: NUMBER)
+        SET species_name TO speciesName
+        SET care_requirements TO careReq
+        SET safe_temperature_min TO tempMin
+        SET safe_temperature_max TO tempMax
+        SET safe_heart_rate_min TO heartMin
+        SET safe_heart_rate_max TO heartMax
+    END CONSTRUCTOR
+
+    METHODS
+
+        GET_SPECIES_NAME()
+            DISPLAY species_name
+        END METHOD
+
+        GET_CARE_REQUIREMENTS()
+            DISPLAY care_requirements
+        END METHOD
+
+        CHECK_TEMPERATURE(temp: NUMBER)
+            IF temp LESS THAN safe_temperature_min OR temp GREATER THAN safe_temperature_max THEN
+                RETURN TRUE
+            ELSE
+                RETURN FALSE
+            END IF
+        END METHOD
+
+        CHECK_HEART_RATE(rate: NUMBER)
+            IF rate LESS THAN safe_heart_rate_min OR rate GREATER THAN safe_heart_rate_max THEN
+                RETURN TRUE
+            ELSE
+                RETURN FALSE
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS PET
+    ATTRIBUTES
+        PRIVATE pet_id: NUMBER
+        PRIVATE name: TEXT
+        PRIVATE date_of_birth: NUMBER
+        PRIVATE owner: OWNER
+        PRIVATE species: SPECIES
+        PRIVATE medical_history: LIST<TEXT>[]
+
+    CONSTRUCTOR(petId: NUMBER, petName: TEXT, birthYear: NUMBER, petOwner: OWNER, petSpecies: SPECIES)
+        SET pet_id TO petId
+        SET name TO petName
+        SET date_of_birth TO birthYear
+        SET owner TO petOwner
+        SET species TO petSpecies
+        SET medical_history TO EMPTY LIST
+    END CONSTRUCTOR
+
+    METHODS
+
+        GET_NAME()
+            DISPLAY name
+        END METHOD
+
+        GET_OWNER()
+            DISPLAY owner
+        END METHOD
+
+        GET_SPECIES()
+            DISPLAY species
+        END METHOD
+
+        GET_AGE(currentYear: NUMBER)
+            SET age TO currentYear - date_of_birth
+            DISPLAY age
+        END METHOD
+
+        ADD_MEDICAL_RECORD(record: TEXT)
+            ADD record TO medical_history
+            DISPLAY "MEDICAL RECORD ADDED"
+        END METHOD
+
+        GET_MEDICAL_HISTORY()
+            DISPLAY medical_history
+        END METHOD
+END CLASS
+
+
+CLASS VET
+    ATTRIBUTES
+        PRIVATE vet_id: NUMBER
+        PRIVATE name: TEXT
+        PRIVATE specialization: TEXT
+
+    CONSTRUCTOR(vetId: NUMBER, vetName: TEXT, vetSpecialization: TEXT)
+        SET vet_id TO vetId
+        SET name TO vetName
+        SET specialization TO vetSpecialization
+    END CONSTRUCTOR
+
+    METHODS
+
+        GET_NAME()
+            DISPLAY name
+        END METHOD
+
+        GET_SPECIALIZATION()
+            DISPLAY specialization
+        END METHOD
+END CLASS
+
+
+CLASS TREATMENT
+    ATTRIBUTES
+        PRIVATE treatment_name: TEXT
+        PRIVATE description: TEXT
+        PRIVATE cost: NUMBER
+
+    CONSTRUCTOR(treatmentName: TEXT, treatmentDescription: TEXT, treatmentCost: NUMBER)
+        SET treatment_name TO treatmentName
+        SET description TO treatmentDescription
+
+        IF treatmentCost LESS THAN 0 THEN
+            SET cost TO 0
+        ELSE
+            SET cost TO treatmentCost
+        END IF
+    END CONSTRUCTOR
+
+    METHODS
+
+        GET_TREATMENT_NAME()
+            DISPLAY treatment_name
+        END METHOD
+
+        GET_COST()
+            RETURN cost
+        END METHOD
+END CLASS
+
+
+CLASS EXAMINATION
+    ATTRIBUTES
+        PRIVATE diagnosis: TEXT
+        PRIVATE temperature: NUMBER
+        PRIVATE heart_rate: NUMBER
+        PRIVATE treatments: LIST<TREATMENT>[]
+        PRIVATE urgent: BOOLEAN
+
+    CONSTRUCTOR(examDiagnosis: TEXT, temp: NUMBER, heartRate: NUMBER)
+        SET diagnosis TO examDiagnosis
+        SET temperature TO temp
+        SET heart_rate TO heartRate
+        SET treatments TO EMPTY LIST
+        SET urgent TO FALSE
+    END CONSTRUCTOR
+
+    METHODS
+
+        ADD_TREATMENT(newTreatment: TREATMENT)
+            ADD newTreatment TO treatments
+            DISPLAY "TREATMENT ADDED"
+        END METHOD
+
+        CHECK_URGENCY(petSpecies: SPECIES)
+            IF petSpecies.CHECK_TEMPERATURE(temperature) EQUALS TRUE OR petSpecies.CHECK_HEART_RATE(heart_rate) EQUALS TRUE THEN
+                SET urgent TO TRUE
+                DISPLAY "URGENT EXAMINATION"
+            ELSE
+                SET urgent TO FALSE
+                DISPLAY "NORMAL EXAMINATION"
+            END IF
+        END METHOD
+
+        GET_TREATMENTS()
+            DISPLAY treatments
+        END METHOD
+
+        GET_URGENCY()
+            DISPLAY urgent
+        END METHOD
+
+        CALCULATE_TREATMENT_TOTAL()
+            SET total TO 0
+
+            REPEAT FROM I = 0 TO SIZE OF treatments - 1
+                SET total TO total + treatments[I].GET_COST()
+            END REPEAT
+
+            RETURN total
+        END METHOD
+END CLASS
+
+
+CLASS VISIT
+    ATTRIBUTES
+        PRIVATE visit_id: NUMBER
+        PRIVATE pet: PET
+        PRIVATE vet: VET
+        PRIVATE examinations: LIST<EXAMINATION>[]
+
+    CONSTRUCTOR(visitId: NUMBER, visitPet: PET, visitVet: VET)
+        SET visit_id TO visitId
+        SET pet TO visitPet
+        SET vet TO visitVet
+        SET examinations TO EMPTY LIST
+    END CONSTRUCTOR
+    METHODS
+
+        ADD_EXAMINATION(newExamination: EXAMINATION)
+            ADD newExamination TO examinations
+            CALL pet.ADD_MEDICAL_RECORD("New examination added to medical history")
+            DISPLAY "EXAMINATION ADDED"
+        END METHOD
+
+        CALCULATE_VISIT_TOTAL()
+            SET total TO 0
+
+            REPEAT FROM I = 0 TO SIZE OF examinations - 1
+                SET total TO total + examinations[I].CALCULATE_TREATMENT_TOTAL()
+            END REPEAT
+
+            DISPLAY total
+        END METHOD
+
+        GET_PET()
+            DISPLAY pet
+        END METHOD
+
+        GET_VET()
+            DISPLAY vet
+        END METHOD
+END CLASS
+
+
+START
+    BEGIN
+        CREATE OBJECT dogSpecies OF SPECIES("Dog", "Needs daily walking and vaccination", 37, 39, 60, 140)
+
+        CREATE OBJECT owner1 OF OWNER(1, "Mohammed", "91261161")
+
+        CREATE OBJECT pet1 OF PET(101, "Max", 2020, owner1, dogSpecies)
+
+        CALL owner1.ADD_PET(pet1)
+
+        CREATE OBJECT vet1 OF VET(201, "Dr Ahmed", "Animal Care")
+
+        CREATE OBJECT visit1 OF VISIT(301, pet1, vet1)
+
+        CREATE OBJECT exam1 OF EXAMINATION("Fever", 40, 150)
+
+
+
+
+
+
+
+        CALL exam1.CHECK_URGENCY(dogSpecies)
+        CREATE OBJECT treatment1 OF TREATMENT("Medicine", "Fever medicine", 15)
+        CREATE OBJECT treatment2 OF TREATMENT("Injection", "Antibiotic injection", 10)
+        CALL exam1.ADD_TREATMENT(treatment1)
+        CALL exam1.ADD_TREATMENT(treatment2)
+        CALL visit1.ADD_EXAMINATION(exam1)
+        CALL visit1.CALCULATE_VISIT_TOTAL()
+    END
+STOP
+
+
+
+____________________________________________________________________________________________________________________
+
+TASK 279: Movie Theater
+CLASS FILM
+ATTRIBUTES
+PRIVATE film_id: NUMBER
+PRIVATE title: TEXT
+PRIVATE duration: NUMBER
+PRIVATE genre: TEXT
+CONSTRUCTOR(filmId: NUMBER, filmTitle: TEXT, filmDuration: NUMBER, filmGenre: TEXT)
+    SET film_id TO filmId
+    SET title TO filmTitle
+    SET duration TO filmDuration
+    SET genre TO filmGenre
+END CONSTRUCTOR
+METHODS
+    GET_TITLE()
+        DISPLAY title
+    END METHOD
+    GET_DURATION()
+        DISPLAY duration
+    END METHOD
+    GET_GENRE()
+        DISPLAY genre
+    END METHOD
+END CLASS
+CLASS SCREEN
+ATTRIBUTES
+PRIVATE screen_id: NUMBER
+PRIVATE screen_name: TEXT
+PRIVATE capacity: NUMBER
+PRIVATE seats: LIST<TEXT>[]
+PRIVATE showtimes: LIST<SHOWTIME>[]
+CONSTRUCTOR(screenId: NUMBER, screenName: TEXT, screenCapacity: NUMBER, seatList: LIST<TEXT>)
+    SET screen_id TO screenId
+    SET screen_name TO screenName
+    SET capacity TO screenCapacity
+    SET seats TO seatList
+    SET showtimes TO EMPTY LIST
+END CONSTRUCTOR
+METHODS
+    GET_SCREEN_NAME()
+        DISPLAY screen_name
+    END METHOD
+    GET_CAPACITY()
+        DISPLAY capacity
+    END METHOD
+    GET_SEATS()
+        DISPLAY seats
+    END METHOD
+    ADD_SHOWTIME(newShowtime: SHOWTIME)
+        REPEAT FROM I = 0 TO SIZE OF showtimes - 1
+            IF newShowtime.CHECK_OVERLAP(showtimes[I]) EQUALS TRUE THEN
+                DISPLAY "SHOWTIME OVERLAPS WITH EXISTING SHOWTIME"
+                RETURN FALSE
+            END IF
+        END REPEAT
+        ADD newShowtime TO showtimes
+        DISPLAY "SHOWTIME ADDED SUCCESSFULLY"
+        RETURN TRUE
+    END METHOD
+END CLASS
+CLASS SHOWTIME
+ATTRIBUTES
+PRIVATE showtime_id: NUMBER
+PRIVATE film: FILM
+PRIVATE screen: SCREEN
+PRIVATE start_time: NUMBER
+PRIVATE end_time: NUMBER
+PRIVATE booked_seats: LIST<TEXT>[]
+CONSTRUCTOR(showtimeId: NUMBER, showFilm: FILM, showScreen: SCREEN, startTime: NUMBER, endTime: NUMBER)
+    SET showtime_id TO showtimeId
+    SET film TO showFilm
+    SET screen TO showScreen
+    SET start_time TO startTime
+    SET end_time TO endTime
+    SET booked_seats TO EMPTY LIST
+END CONSTRUCTOR
+METHODS
+    CHECK_OVERLAP(otherShowtime: SHOWTIME)
+        IF start_time LESS THAN otherShowtime.end_time AND end_time GREATER THAN otherShowtime.start_time THEN
+            RETURN TRUE
+        ELSE
+            RETURN FALSE
+        END IF
+    END METHOD
+    BOOK_SEAT(seatNumber: TEXT)
+        IF seatNumber NOT IN screen.seats THEN
+            DISPLAY "SEAT DOES NOT EXIST"
+            RETURN FALSE
+        END IF
+        IF seatNumber IN booked_seats THEN
+            DISPLAY "SEAT ALREADY BOOKED"
+            RETURN FALSE
+        ELSE
+            ADD seatNumber TO booked_seats
+            DISPLAY "SEAT BOOKED SUCCESSFULLY"
+            RETURN TRUE
+        END IF
+    END METHOD
+    GET_AVAILABLE_SEATS()
+        SET available TO screen.capacity - SIZE OF booked_seats
+        DISPLAY available
+    END METHOD
+    GET_FILM()
+        DISPLAY film
+    END METHOD
+    GET_SCREEN()
+        DISPLAY screen
+    END METHOD
+END CLASS
+CLASS CUSTOMER
+ATTRIBUTES
+PRIVATE customer_id: NUMBER
+PRIVATE name: TEXT
+PRIVATE phone: TEXT
+CONSTRUCTOR(customerId: NUMBER, customerName: TEXT, customerPhone: TEXT)
+    SET customer_id TO customerId
+    SET name TO customerName
+    SET phone TO customerPhone
+END CONSTRUCTOR
+METHODS
+    GET_NAME()
+        DISPLAY name
+    END METHOD
+    GET_PHONE()
+        DISPLAY phone
+    END METHOD
+END CLASS\
+CLASS TICKET
+ATTRIBUTES
+PRIVATE ticket_id: NUMBER
+PRIVATE customer: CUSTOMER
+PRIVATE showtime: SHOWTIME
+PRIVATE seat_number: TEXT
+PRIVATE price: NUMBER
+CONSTRUCTOR(ticketId: NUMBER, ticketCustomer: CUSTOMER, ticketShowtime: SHOWTIME, seatNumber: TEXT, ticketPrice: NUMBER)
+    SET ticket_id TO ticketId
+    SET customer TO ticketCustomer
+    SET showtime TO ticketShowtime
+    SET price TO ticketPrice
+    IF ticketShowtime.BOOK_SEAT(seatNumber) EQUALS TRUE THEN
+        SET seat_number TO seatNumber
+        DISPLAY "TICKET CREATED SUCCESSFULLY"
+    ELSE
+        SET seat_number TO ""
+        DISPLAY "TICKET CREATION FAILED"
+    END IF
+END CONSTRUCTOR
+METHODS
+    GET_TICKET_DETAILS()
+        DISPLAY ticket_id
+        DISPLAY customer
+        DISPLAY showtime
+        DISPLAY seat_number
+        DISPLAY price
+    END METHOD
+    GET_SEAT_NUMBER()
+        DISPLAY seat_number
+    END METHOD
+    GET_PRICE()
+        DISPLAY price
+    END METHOD
+END CLASS
+START
+BEGIN
+CREATE OBJECT film1 OF FILM(1, "The Lost City", 120, "Adventure")
+    CREATE OBJECT screen1 OF SCREEN(101, "Screen One", 5, ["A1", "A2", "A3", "A4", "A5"])
+    CREATE OBJECT showtime1 OF SHOWTIME(201, film1, screen1, 14, 16)
+    CALL screen1.ADD_SHOWTIME(showtime1)
+    CREATE OBJECT showtime2 OF SHOWTIME(202, film1, screen1, 15, 17)
+    CALL screen1.ADD_SHOWTIME(showtime2)
+    CREATE OBJECT customer1 OF CUSTOMER(301, "Mohammed", "91261161")
+    CREATE OBJECT ticket1 OF TICKET(401, customer1, showtime1, "A1", 3)
+    CREATE OBJECT ticket2 OF TICKET(402, customer1, showtime1, "A1", 3)
+    CALL showtime1.GET_AVAILABLE_SEATS()
+END
+STOP
+CLASS FILM
+
+METHODS
+    GET_TITLE()
+        DISPLAY title
+    END METHOD
+    GET_DURATION()
+        DISPLAY duration
+    END METHOD
+    GET_GENRE()
+        DISPLAY genre
+    END METHOD
+END CLASS
+CLASS SCREEN
+ATTRIBUTES
+PRIVATE screen_id: NUMBER
+PRIVATE screen_name: TEXT
+PRIVATE capacity: NUMBER
+PRIVATE seats: LIST<TEXT>[]
+PRIVATE showtimes: LIST<SHOWTIME>[]
+CONSTRUCTOR(screenId: NUMBER, screenName: TEXT, screenCapacity: NUMBER, seatList: LIST<TEXT>)
+    SET screen_id TO screenId
+    SET screen_name TO screenName
+    SET capacity TO screenCapacity
+    SET seats TO seatList
+    SET showtimes TO EMPTY LIST
+END CONSTRUCTOR
+METHODS
+    GET_SCREEN_NAME()
+        DISPLAY screen_name
+    END METHOD
+    GET_CAPACITY()
+        DISPLAY capacity
+    END METHOD
+    GET_SEATS()
+        DISPLAY seats
+    END METHOD
+    ADD_SHOWTIME(newShowtime: SHOWTIME)
+        REPEAT FROM I = 0 TO SIZE OF showtimes - 1
+            IF newShowtime.CHECK_OVERLAP(showtimes[I]) EQUALS TRUE THEN
+                DISPLAY "SHOWTIME OVERLAPS WITH EXISTING SHOWTIME"
+                RETURN FALSE
+            END IF
+        END REPEAT
+        ADD newShowtime TO showtimes
+        DISPLAY "SHOWTIME ADDED SUCCESSFULLY"
+        RETURN TRUE
+    END METHOD
+END CLASS
+CLASS SHOWTIME
+ATTRIBUTES
+PRIVATE showtime_id: NUMBER
+PRIVATE film: FILM
+PRIVATE screen: SCREEN
+PRIVATE start_time: NUMBER
+PRIVATE end_time: NUMBER
+PRIVATE booked_seats: LIST<TEXT>[]
+CONSTRUCTOR(showtimeId: NUMBER, showFilm: FILM, showScreen: SCREEN, startTime: NUMBER, endTime: NUMBER)
+    SET showtime_id TO showtimeId
+    SET film TO showFilm
+    SET screen TO showScreen
+    SET start_time TO startTime
+    SET end_time TO endTime
+    SET booked_seats TO EMPTY LIST
+END CONSTRUCTOR
+METHODS
+    CHECK_OVERLAP(otherShowtime: SHOWTIME)
+        IF start_time LESS THAN otherShowtime.end_time AND end_time GREATER THAN otherShowtime.start_time THEN
+            RETURN TRUE
+        ELSE
+            RETURN FALSE
+        END IF
+    END METHOD
+    BOOK_SEAT(seatNumber: TEXT)
+        IF seatNumber NOT IN screen.seats THEN
+            DISPLAY "SEAT DOES NOT EXIST"
+            RETURN FALSE
+        END IF
+        IF seatNumber IN booked_seats THEN
+            DISPLAY "SEAT ALREADY BOOKED"
+            RETURN FALSE
+        ELSE
+            ADD seatNumber TO booked_seats
+            DISPLAY "SEAT BOOKED SUCCESSFULLY"
+            RETURN TRUE
+        END IF
+    END METHOD
+    GET_AVAILABLE_SEATS()
+        SET available TO screen.capacity - SIZE OF booked_seats
+        DISPLAY available
+    END METHOD
+    GET_FILM()
+        DISPLAY film
+    END METHOD
+    GET_SCREEN()
+        DISPLAY screen
+    END METHO
+END CLASS
+CLASS CUSTOMER
+ATTRIBUTES
+PRIVATE customer_id: NUMBER
+PRIVATE name: TEXT
+PRIVATE phone: TEXT
+CONSTRUCTOR(customerId: NUMBER, customerName: TEXT, customerPhone: TEXT)
+    SET customer_id TO customerId
+    SET name TO customerName
+    SET phone TO customerPhone
+END CONSTRUCTO
+METHODS
+    GET_NAME()
+        DISPLAY name
+    END METHOD
+    GET_PHONE()
+        DISPLAY phone
+    END METHOD
+END CLASS
+CLASS TICKET
+ATTRIBUTES
+PRIVATE ticket_id: NUMBER
+PRIVATE customer: CUSTOMER
+PRIVATE showtime: SHOWTIME
+PRIVATE seat_number: TEXT
+PRIVATE price: NUMBER
+CONSTRUCTOR(ticketId: NUMBER, ticketCustomer: CUSTOMER, ticketShowtime: SHOWTIME, seatNumber: TEXT, ticketPrice: NUMBER)
+    SET ticket_id TO ticketId
+    SET customer TO ticketCustomer
+    SET showtime TO ticketShowtime
+    SET price TO ticketPrice
+    IF ticketShowtime.BOOK_SEAT(seatNumber) EQUALS TRUE THEN
+        SET seat_number TO seatNumber
+        DISPLAY "TICKET CREATED SUCCESSFULLY"
+    ELSE
+        SET seat_number TO ""
+        DISPLAY "TICKET CREATION FAILED"
+    END IF
+END CONSTRUCTOR
+METHODS
+    GET_TICKET_DETAILS()
+        DISPLAY ticket_id
+        DISPLAY customer
+        DISPLAY showtime
+        DISPLAY seat_number
+        DISPLAY price
+    END METHOD
+    GET_SEAT_NUMBER()
+        DISPLAY seat_number
+    END METHOD
+    GET_PRICE()
+        DISPLAY price
+    END METHOD
+END CLASS
+START
+BEGIN
+CREATE OBJECT film1 OF FILM(1, "The Lost City", 120, "Adventure")
+    CREATE OBJECT screen1 OF SCREEN(101, "Screen One", 5, ["A1", "A2", "A3", "A4", "A5"])
+    CREATE OBJECT showtime1 OF SHOWTIME(201, film1, screen1, 14, 16)
+    CALL screen1.ADD_SHOWTIME(showtime1)
+    CREATE OBJECT showtime2 OF SHOWTIME(202, film1, screen1, 15, 17)
+    CALL screen1.ADD_SHOWTIME(showtime2)
+    CREATE OBJECT customer1 OF CUSTOMER(301, "Mohammed", "91261161")
+    CREATE OBJECT ticket1 OF TICKET(401, customer1, showtime1, "A1", 3)
+    CREATE OBJECT ticket2 OF TICKET(402, customer1, showtime1, "A1", 3)
+    CALL showtime1.GET_AVAILABLE_SEATS()
+ENd
+STOP
+____________________________________________________________________________________________________________________
+
+TASK 280: Warehouse Inventory
+CLASS VENDOR
+ATTRIBUTES
+PRIVATE vendor_id: NUMBER
+PRIVATE name: TEXT
+PRIVATE phone: TEXT
+PRIVATE email: TEXT
+PRIVATE late_deliveries: NUMBER
+PRIVATE total_deliveries: NUMBER
+PRIVATE reliability_rating: NUMBER
+PRIVATE products: LIST<PRODUCT>[]
+
+
+CONSTRUCTOR(vendorId: NUMBER, vendorName: TEXT, vendorPhone: TEXT, vendorEmail: TEXT)
+    SET vendor_id TO vendorId
+    SET name TO vendorName
+    SET phone TO vendorPhone
+    SET email TO vendorEmail
+    SET late_deliveries TO 0
+    SET total_deliveries TO 0
+    SET reliability_rating TO 100
+    SET products TO EMPTY LIST
+END CONSTRUCTOR
+
+METHODS
+
+    ADD_PRODUCT(newProduct: PRODUCT)
+        ADD newProduct TO products
+        DISPLAY "PRODUCT ADDED TO VENDOR"
+    END METHOD
+
+    RECORD_DELIVERY(isLate: BOOLEAN)
+        SET total_deliveries TO total_deliveries + 1
+
+        IF isLate EQUALS TRUE THEN
+            SET late_deliveries TO late_deliveries + 1
+        END IF
+
+        CALL UPDATE_RELIABILITY()
+    END METHOD
+
+    UPDATE_RELIABILITY()
+        IF total_deliveries EQUALS 0 THEN
+            SET reliability_rating TO 100
+        ELSE
+            SET reliability_rating TO 100 - ((late_deliveries / total_deliveries) * 100)
+        END IF
+    END METHOD
+
+    GET_RELIABILITY()
+        DISPLAY reliability_rating
+    END METHOD
+
+    GET_PRODUCTS()
+        DISPLAY products
+    END METHOD
+
+
+END CLASS
+
+CLASS CATEGORY
+ATTRIBUTES
+PRIVATE category_id: NUMBER
+PRIVATE name: TEXT
+PRIVATE description: TEXT
+
+
+CONSTRUCTOR(categoryId: NUMBER, categoryName: TEXT, categoryDescription: TEXT)
+    SET category_id TO categoryId
+    SET name TO categoryName
+    SET description TO categoryDescription
+END CONSTRUCTOR
+
+METHODS
+
+    GET_NAME()
+        DISPLAY name
+    END METHOD
+
+    GET_DESCRIPTION()
+        DISPLAY description
+    END METHOD
+
+
+END CLASS
+
+CLASS STORAGE_BIN
+ATTRIBUTES
+PRIVATE bin_id: NUMBER
+PRIVATE location: TEXT
+PRIVATE quantity: NUMBER
+
+
+CONSTRUCTOR(binId: NUMBER, binLocation: TEXT, startQuantity: NUMBER)
+    SET bin_id TO binId
+    SET location TO binLocation
+
+    IF startQuantity LESS THAN 0 THEN
+        SET quantity TO 0
+    ELSE
+        SET quantity TO startQuantity
+    END IF
+END CONSTRUCTOR
+
+METHODS
+
+    GET_QUANTITY()
+        RETURN quantity
+    END METHOD
+
+    ADD_STOCK(amount: NUMBER)
+        IF amount GREATER THAN 0 THEN
+            SET quantity TO quantity + amount
+            DISPLAY "STOCK ADDED TO BIN"
+        ELSE
+            DISPLAY "INVALID STOCK AMOUNT"
+        END IF
+    END METHOD
+
+    REMOVE_STOCK(amount: NUMBER)
+        IF amount LESS THAN OR EQUAL TO 0 THEN
+            DISPLAY "INVALID STOCK AMOUNT"
+            RETURN FALSE
+        ELSE
+            IF amount GREATER THAN quantity THEN
+                DISPLAY "NOT ENOUGH STOCK IN BIN"
+                RETURN FALSE
+            ELSE
+                SET quantity TO quantity - amount
+                DISPLAY "STOCK REMOVED FROM BIN"
+                RETURN TRUE
+            END IF
+        END IF
+    END METHOD
+
+
+END CLASS
+
+CLASS STOCK_MOVEMENT
+ATTRIBUTES
+PRIVATE movement_id: NUMBER
+PRIVATE product: PRODUCT
+PRIVATE movement_type: TEXT
+PRIVATE quantity: NUMBER
+PRIVATE movement_date: TEXT
+
+
+CONSTRUCTOR(movementId: NUMBER, moveProduct: PRODUCT, moveType: TEXT, moveQuantity: NUMBER, moveDate: TEXT)
+    SET movement_id TO movementId
+    SET product TO moveProduct
+    SET movement_type TO moveType
+    SET quantity TO moveQuantity
+    SET movement_date TO moveDate
+END CONSTRUCTOR
+
+METHODS
+
+    GET_MOVEMENT_DETAILS()
+        DISPLAY movement_id
+        DISPLAY product
+        DISPLAY movement_type
+        DISPLAY quantity
+        DISPLAY movement_date
+    END METHOD
+
+
+END CLASS
+
+CLASS PRODUCT
+ATTRIBUTES
+PRIVATE product_id: NUMBER
+PRIVATE name: TEXT
+PRIVATE category: CATEGORY
+PRIVATE vendor: VENDOR
+PRIVATE storage_bins: LIST<STORAGE_BIN>[]
+PRIVATE stock_movements: LIST<STOCK_MOVEMENT>[]
+
+
+CONSTRUCTOR(productId: NUMBER, productName: TEXT, productCategory: CATEGORY, productVendor: VENDOR)
+    SET product_id TO productId
+    SET name TO productName
+    SET category TO productCategory
+    SET vendor TO productVendor
+    SET storage_bins TO EMPTY LIST
+    SET stock_movements TO EMPTY LIST
+END CONSTRUCTOR
+
+METHODS
+
+    ADD_BIN(newBin: STORAGE_BIN)
+        ADD newBin TO storage_bins
+        DISPLAY "BIN ADDED TO PRODUCT"
+    END METHOD
+
+    CALCULATE_TOTAL_STOCK()
+        SET total TO 0
+
+        REPEAT FROM I = 0 TO SIZE OF storage_bins - 1
+            SET total TO total + storage_bins[I].GET_QUANTITY()
+        END REPEAT
+
+        RETURN total
+    END METHOD
+
+    MOVE_STOCK_IN(binIndex: NUMBER, amount: NUMBER, movementId: NUMBER, moveDate: TEXT)
+        IF amount LESS THAN OR EQUAL TO 0 THEN
+            DISPLAY "INVALID STOCK AMOUNT"
+        ELSE
+            CALL storage_bins[binIndex].ADD_STOCK(amount)
+
+            CREATE OBJECT movement OF STOCK_MOVEMENT(movementId, self, "IN", amount, moveDate)
+
+            ADD movement TO stock_movements
+
+            DISPLAY "STOCK IN MOVEMENT RECORDED"
+        END IF
+    END METHOD
+
+    MOVE_STOCK_OUT(binIndex: NUMBER, amount: NUMBER, movementId: NUMBER, moveDate: TEXT)
+        IF amount LESS THAN OR EQUAL TO 0 THEN
+            DISPLAY "INVALID STOCK AMOUNT"
+        ELSE
+            IF amount GREATER THAN CALCULATE_TOTAL_STOCK() THEN
+                DISPLAY "OUTGOING MOVEMENT REJECTED: STOCK CANNOT GO BELOW ZERO"
+            ELSE
+                IF storage_bins[binIndex].REMOVE_STOCK(amount) EQUALS TRUE THEN
+                    CREATE OBJECT movement OF STOCK_MOVEMENT(movementId, self, "OUT", amount, moveDate)
+
+                    ADD movement TO stock_movements
+
+                    DISPLAY "STOCK OUT MOVEMENT RECORDED"
+                END IF
+            END IF
+        END IF
+    END METHOD
+
+    GET_TOTAL_STOCK()
+        DISPLAY CALCULATE_TOTAL_STOCK()
+    END METHOD
+
+    GET_MOVEMENTS()
+        DISPLAY stock_movements
+    END METHOD
+
+
+END CLASS
+
+START
+BEGIN
+CREATE OBJECT vendor1 OF VENDOR(1, "Oman Supplies", "91261161", "[sales@omansupplies.com](mailto:sales@omansupplies.com)"
+
+    CREATE OBJECT category1 OF CATEGORY(101, "Electronics", "Electronic warehouse products")
+
+    CREATE OBJECT product1 OF PRODUCT(201, "Keyboard", category1, vendor1)
+
+    CALL vendor1.ADD_PRODUCT(product1)
+
+    CREATE OBJECT bin1 OF STORAGE_BIN(301, "A1", 20)
+
+    CREATE OBJECT bin2 OF STORAGE_BIN(302, "A2", 15)
+
+    CALL product1.ADD_BIN(bin1)
+
+    CALL product1.ADD_BIN(bin2)
+
+    CALL product1.GET_TOTAL_STOCK()
+
+    CALL product1.MOVE_STOCK_IN(0, 10, 401, "2026-06-30")
+
+    CALL product1.GET_TOTAL_STOCK()
+
+    CALL product1.MOVE_STOCK_OUT(1, 5, 402, "2026-06-30")
+
+    CALL product1.GET_TOTAL_STOCK()
+
+    CALL product1.MOVE_STOCK_OUT(0, 100, 403, "2026-06-30")
+
+    CALL vendor1.RECORD_DELIVERY(FALSE)
+
+    CALL vendor1.RECORD_DELIVERY(TRUE)
+
+    CALL vendor1.GET_RELIABILITY()
+END
+
+
+STOP
