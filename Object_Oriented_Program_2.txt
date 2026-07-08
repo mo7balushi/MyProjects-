@@ -1,0 +1,466 @@
+Task 288: Bookshop
+START
+    BEGIN
+CLASS Genre
+    ATTRIBUTES
+        PRIVATE genreName : String
+
+    CONSTRUCTOR(genreName)
+        this.genreName = genreName
+    END CONSTRUCTOR
+
+    METHOD getGenreName()
+        RETURN this.genreName
+    END METHOD
+END CLASS
+CLASS Book
+    ATTRIBUTES
+        PRIVATE title : String
+        PRIVATE author : String
+        PRIVATE price : Number
+        PRIVATE genre : Genre
+
+    CONSTRUCTOR(title, author, price, genre)
+        IF price > 0 THEN
+            this.title = title
+            this.author = author
+            this.price = price
+            this.genre = genre
+        END IF
+    END CONSTRUCTOR
+
+    METHOD getTitle()
+        RETURN this.title
+    END METHOD
+
+    METHOD getAuthor()
+        RETURN this.author
+    END METHOD
+
+    METHOD getPrice()
+        RETURN this.price
+    END METHOD
+
+    METHOD getGenre()
+        RETURN this.genre
+    END METHOD
+END CLASS
+CLASS Customer
+    ATTRIBUTES
+        PRIVATE customerID : Number
+        PRIVATE customerName : String
+        PRIVATE purchaseHistory : List<Sale>
+
+    CONSTRUCTOR(customerID, customerName)
+        this.customerID = customerID
+        this.customerName = customerName
+        this.purchaseHistory = NEW List<Sale>()
+    END CONSTRUCTOR
+
+    METHOD addPurchase(sale)
+        ADD sale TO this.purchaseHistory
+    END METHOD
+
+    METHOD viewPurchaseHistory()
+        FOR EACH sale IN this.purchaseHistory
+            DISPLAY sale
+        END FOR
+    END METHOD
+END CLASS
+CLASS Sale
+    ATTRIBUTES
+        PRIVATE saleID : Number
+        PRIVATE book : Book
+        PRIVATE customer : Customer
+        PRIVATE soldPrice : Number
+
+    CONSTRUCTOR(saleID, book, customer, soldPrice)
+        this.saleID = saleID
+        this.book = book
+        this.customer = customer
+
+        IF soldPrice = book.getPrice() THEN
+            this.soldPrice = soldPrice
+        END IF
+    END CONSTRUCTOR
+END CLASS
+  END
+STOP
+______________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+Task 289: Online Exam Platform
+START
+    BEGIN
+CLASS Question
+    ATTRIBUTES
+        PRIVATE questionText : String
+        PRIVATE correctAnswer : String
+        PRIVATE points : Number
+
+    CONSTRUCTOR(questionText, correctAnswer, points)
+        IF points > 0 THEN
+            this.questionText = questionText
+            this.correctAnswer = correctAnswer
+            this.points = points
+        END IF
+    END CONSTRUCTOR
+
+    METHOD checkAnswer(answer)
+        RETURN answer = this.correctAnswer
+    END METHOD
+
+    METHOD getPoints()
+        RETURN this.points
+    END METHOD
+END CLASS
+CLASS Exam
+    ATTRIBUTES
+        PRIVATE examID : Number
+        PRIVATE examTitle : String
+        PRIVATE timeLimit : Number
+        PRIVATE questions : List<Question>
+
+    CONSTRUCTOR(examID, examTitle, timeLimit)
+        this.examID = examID
+        this.examTitle = examTitle
+        this.timeLimit = timeLimit
+        this.questions = NEW List<Question>()
+    END CONSTRUCTOR
+
+    METHOD addQuestion(question)
+        ADD question TO this.questions
+    END METHOD
+
+    METHOD getQuestions()
+        RETURN this.questions
+    END METHOD
+END CLASS
+CLASS Student
+    ATTRIBUTES
+        PRIVATE studentID : Number
+        PRIVATE studentName : String
+        PRIVATE attempts : List<Attempt>
+
+    CONSTRUCTOR(studentID, studentName)
+        this.studentID = studentID
+        this.studentName = studentName
+        this.attempts = NEW List<Attempt>()
+    END CONSTRUCTOR
+    METHOD addAttempt(attempt)
+        ADD attempt TO this.attempts
+    END METHOD
+    METHOD viewAttempts()
+        FOR EACH attempt IN this.attempts
+            DISPLAY attempt.calculateScore()
+        END FOR
+    END METHOD
+END CLASS
+CLASS Attempt
+    ATTRIBUTES
+        PRIVATE attemptID : Number
+        PRIVATE exam : Exam
+        PRIVATE student : Student
+        PRIVATE selectedAnswers : Map<Question, String>
+        PRIVATE startTime : Number
+    CONSTRUCTOR(attemptID, exam, student, startTime)
+        this.attemptID = attemptID
+        this.exam = exam
+        this.student = student
+        this.startTime = startTime
+        this.selectedAnswers = NEW Map<Question, String>()
+    END CONSTRUCTOR
+    METHOD submitAnswer(question, answer, currentTime)
+        IF currentTime - this.startTime <= this.exam.timeLimit THEN
+            ADD answer TO this.selectedAnswers WITH question
+        ELSE
+            DISPLAY "Time limit exceeded"
+        END IF
+    END METHOD
+    METHOD calculateScore()
+        SET score = 0
+
+        FOR EACH question IN this.exam.getQuestions()
+            IF question.checkAnswer(this.selectedAnswers[question]) THEN
+                SET score = score + question.getPoints()
+            END IF
+        END FOR
+        RETURN score
+    END METHOD
+    METHOD getExam()
+        RETURN this.exam
+    END METHOD
+END CLASS
+
+  END
+STOP
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+Task 290: Taxi Company
+START
+    BEGIN
+CLASS Vehicle
+    ATTRIBUTES
+        PRIVATE vehicleID : Number
+        PRIVATE model : String
+
+    CONSTRUCTOR(vehicleID, model)
+        this.vehicleID = vehicleID
+        this.model = model
+    END CONSTRUCTOR
+END CLASS
+CLASS Driver
+    ATTRIBUTES
+        PRIVATE driverID : Number
+        PRIVATE driverName : String
+        PRIVATE vehicle : Vehicle
+        PRIVATE trips : List<Trip>
+    CONSTRUCTOR(driverID, driverName, vehicle)
+        this.driverID = driverID
+        this.driverName = driverName
+        this.vehicle = vehicle
+        this.trips = NEW List<Trip>()
+    END CONSTRUCTOR
+    METHOD addTrip(trip)
+        ADD trip TO this.trips
+    END METHOD
+    METHOD viewTrips()
+        FOR EACH trip IN this.trips
+            DISPLAY trip
+        END FOR
+    END METHOD
+    METHOD getTotalFare()
+        SET total = 0
+        FOR EACH trip IN this.trips
+            SET total = total + trip.getFare()
+        END FOR
+        RETURN total
+    END METHOD
+END CLASS
+CLASS Passenger
+    ATTRIBUTES
+        PRIVATE passengerID : Number
+        PRIVATE passengerName : String
+        PRIVATE phoneNumber : String
+        PRIVATE trips : List<Trip>
+    CONSTRUCTOR(passengerID, passengerName, phoneNumber)
+        this.passengerID = passengerID
+        this.passengerName = passengerName
+        this.phoneNumber = phoneNumber
+        this.trips = NEW List<Trip>()
+    END CONSTRUCTOR
+    METHOD addTrip(trip)
+        ADD trip TO this.trips
+    END METHOD
+    METHOD viewHistory()
+        FOR EACH trip IN this.trips
+            DISPLAY trip
+        END FOR
+    END METHOD
+END CLASS
+CLASS Trip
+    ATTRIBUTES
+        PRIVATE tripID : Number
+        PRIVATE driver : Driver
+        PRIVATE passenger : Passenger
+        PRIVATE pickupLocation : String
+        PRIVATE dropoffLocation : String
+        PRIVATE fare : Number
+    CONSTRUCTOR(tripID, driver, passenger, pickupLocation, dropoffLocation, fare)
+        IF fare > 0 AND pickupLocation <> dropoffLocation THEN
+            this.tripID = tripID
+            this.driver = driver
+            this.passenger = passenger
+            this.pickupLocation = pickupLocation
+            this.dropoffLocation = dropoffLocation
+            this.fare = fare
+        END IF
+    END CONSTRUCTOR
+    METHOD getFare()
+        RETURN this.fare
+    END METHOD
+END CLASS
+   END
+STOP[9:54 AM]Task 291: Co-working Space
+START
+    BEGIN
+CLASS MembershipPlan
+    ATTRIBUTES
+        PRIVATE planName : String
+        PRIVATE monthlyQuotaHours : Number
+
+    CONSTRUCTOR(planName, monthlyQuotaHours)
+        this.planName = planName
+        this.monthlyQuotaHours = monthlyQuotaHours
+    END CONSTRUCTOR
+
+    METHOD getQuota()
+        RETURN this.monthlyQuotaHours
+    END METHOD
+END CLASS
+CLASS Member
+    ATTRIBUTES
+        PRIVATE memberID : Number
+        PRIVATE memberName : String
+        PRIVATE plan : MembershipPlan
+        PRIVATE bookings : List<Booking>
+    CONSTRUCTOR(memberID, memberName, plan)
+        this.memberID = memberID
+        this.memberName = memberName
+        this.plan = plan
+        this.bookings = NEW List<Booking>()
+    END CONSTRUCTOR
+    METHOD getPlan()
+        RETURN this.plan
+    END METHOD
+    METHOD addBooking(booking)
+        ADD booking TO this.bookings
+    END METHOD
+    METHOD getRemainingHours()
+        SET usedHours = 0
+        FOR EACH booking IN this.bookings
+            SET usedHours = usedHours + booking.getDuration()
+        END FOR
+        RETURN this.plan.getQuota() - usedHours
+    END METHOD
+END CLASS
+CLASS Room
+    ATTRIBUTES
+        PRIVATE roomID : Number
+        PRIVATE roomName : String
+        PRIVATE bookings : List<Booking>
+    CONSTRUCTOR(roomID, roomName)
+        this.roomID = roomID
+        this.roomName = roomName
+        this.bookings = NEW List<Booking>()
+    END CONSTRUCTOR
+    METHOD isAvailable(newStartTime, newEndTime)
+        FOR EACH booking IN this.bookings
+            IF booking.overlaps(newStartTime, newEndTime) THEN
+                RETURN FALSE
+            END IF
+        END FOR
+        RETURN TRUE
+    END METHOD
+END CLASS
+CLASS Booking
+    ATTRIBUTES
+        PRIVATE bookingID : Number
+        PRIVATE member : Member
+        PRIVATE room : Room
+        PRIVATE bookingDate : String
+        PRIVATE startTime : Number
+        PRIVATE endTime : Number
+        PRIVATE duration : Number
+    CONSTRUCTOR(bookingID, member, room, bookingDate, startTime, endTime, duration)
+        IF startTime < endTime AND duration > 0 THEN
+            this.bookingID = bookingID
+            this.member = member
+            this.room = room
+            this.bookingDate = bookingDate
+            this.startTime = startTime
+            this.endTime = endTime
+            this.duration = duration
+        END IF
+    END CONSTRUCTOR
+    METHOD overlaps(newStartTime, newEndTime)
+        RETURN newStartTime < this.endTime AND newEndTime > this.startTime
+    END METHOD
+    METHOD getDuration()
+        RETURN this.duration
+    END METHOD
+    METHOD confirmBooking()
+        IF this.member.getRemainingHours() >= this.duration AND this.room.isAvailable(this.startTime, this.endTime) THEN
+            RETURN TRUE
+        ELSE
+            RETURN FALSE
+        END IF
+    END METHOD
+END CLASS
+   END
+STOP
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+Task 292: Personal Trainer Bookings
+START
+    BEGIN
+CLASS Client
+    ATTRIBUTES
+        PRIVATE clientID : Number
+        PRIVATE clientName : String
+        PRIVATE phoneNumber : String
+        PRIVATE email : String
+        PRIVATE sessions : List<Session>
+    CONSTRUCTOR(clientID, clientName, phoneNumber, email)
+        this.clientID = clientID
+        this.clientName = clientName
+        this.phoneNumber = phoneNumber
+        this.email = email
+        this.sessions = NEW List<Session>()
+    END CONSTRUCTOR
+    METHOD addSession(session)
+        ADD session TO this.sessions
+    END METHOD
+    METHOD viewSessions()
+        FOR EACH session IN this.sessions
+            DISPLAY session
+        END FOR
+    END METHOD
+    METHOD getClientName()
+        RETURN this.clientName
+    END METHOD
+END CLASS
+CLASS Trainer
+    ATTRIBUTES
+        PRIVATE trainerID : Number
+        PRIVATE trainerName : String
+        PRIVATE allSessions : List<Session>
+    CONSTRUCTOR(trainerID, trainerName)
+        this.trainerID = trainerID
+        this.trainerName = trainerName
+        this.allSessions = NEW List<Session>()
+    END CONSTRUCTOR
+    METHOD addSession(session)
+        ADD session TO this.allSessions
+    END METHOD
+    METHOD viewAllSessions()
+        FOR EACH session IN this.allSessions
+            DISPLAY session
+        END FOR
+    END METHOD
+    METHOD getTrainerName()
+        RETURN this.trainerName
+    END METHOD
+END CLASS
+CLASS Session
+    ATTRIBUTES
+        PRIVATE sessionID : Number
+        PRIVATE client : Client
+        PRIVATE trainer : Trainer
+        PRIVATE sessionDate : String
+        PRIVATE duration : Number
+        PRIVATE workoutType : String
+    CONSTRUCTOR(sessionID, client, trainer, sessionDate, duration, workoutType)
+        IF duration > 0 THEN
+            this.sessionID = sessionID
+            this.client = client
+            this.trainer = trainer
+            this.sessionDate = sessionDate
+            this.duration = duration
+            this.workoutType = workoutType
+        END IF
+    END CONSTRUCTOR
+    METHOD getSessionDate()
+        RETURN this.sessionDate
+    END METHOD
+    METHOD getWorkoutType()
+        RETURN this.workoutType
+    END METHOD
+    METHOD DESCRIBE()
+        DISPLAY this.client.getClientName()
+        DISPLAY this.trainer.getTrainerName()
+        DISPLAY this.sessionDate
+        DISPLAY this.workoutType
+        DISPLAY this.duration
+    END METHOD
+END CLASS
+  END
+STOP
