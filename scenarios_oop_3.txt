@@ -1,0 +1,142 @@
+TASK 293: Shape Drawing App
+CLASS SHAPE
+    ATTRIBUTES
+        PRIVATE color: TEXT
+        PRIVATE position: TEXT
+    CONSTRUCTOR(shapeColor: TEXT, shapePosition: TEXT)
+        SET color TO shapeColor
+        SET position TO shapePosition
+    END CONSTRUCTOR
+    METHODS
+        GET_COLOR()
+            RETURN color
+        END METHOD
+        GET_POSITION()
+            RETURN position
+        END METHOD
+        GET_AREA()
+            RETURN 0
+        END METHOD
+        GET_PERIMETER()
+            RETURN 0
+        END METHOD
+END CLASS
+CLASS CIRCLE INHERITS SHAPE
+    ATTRIBUTES
+        PRIVATE radius: NUMBER
+    CONSTRUCTOR(circleColor: TEXT, circlePosition: TEXT, circleRadius: NUMBER)
+        CALL SUPER(circleColor, circlePosition)
+        IF circleRadius LESS THAN 0 THEN
+            SET radius TO 0
+        ELSE
+            SET radius TO circleRadius
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        GET_AREA()
+            RETURN 3.14 * radius * radius
+        END METHOD
+        GET_PERIMETER()
+            RETURN 2 * 3.14 * radius
+        END METHOD
+END CLASS
+CLASS RECTANGLE INHERITS SHAPE
+    ATTRIBUTES
+        PRIVATE width: NUMBER
+        PRIVATE height: NUMBER
+    CONSTRUCTOR(rectColor: TEXT, rectPosition: TEXT, rectWidth: NUMBER, rectHeight: NUMBER)
+        CALL SUPER(rectColor, rectPosition)
+        IF rectWidth LESS THAN 0 THEN
+            SET width TO 0
+        ELSE
+            SET width TO rectWidth
+        END IF
+        IF rectHeight LESS THAN 0 THEN
+            SET height TO 0
+        ELSE
+            SET height TO rectHeight
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        GET_AREA()
+            RETURN width * height
+        END METHOD
+        GET_PERIMETER()
+            RETURN 2 * (width + height)
+        END METHOD
+END CLASS
+CLASS TRIANGLE INHERITS SHAPE
+    ATTRIBUTES
+        PRIVATE side_one: NUMBER
+        PRIVATE side_two: NUMBER
+        PRIVATE side_three: NUMBER
+    CONSTRUCTOR(triColor: TEXT, triPosition: TEXT, s1: NUMBER, s2: NUMBER, s3: NUMBER)
+        CALL SUPER(triColor, triPosition)
+        IF s1 LESS THAN 0 THEN
+            SET side_one TO 0
+        ELSE
+            SET side_one TO s1
+        END IF
+        IF s2 LESS THAN 0 THEN
+            SET side_two TO 0
+        ELSE
+            SET side_two TO s2
+        END IF
+        IF s3 LESS THAN 0 THEN
+            SET side_three TO 0
+        ELSE
+            SET side_three TO s3
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        GET_PERIMETER()
+            RETURN side_one + side_two + side_three
+        END METHOD
+        GET_AREA()
+            SET semiPerimeter TO GET_PERIMETER() / 2
+            RETURN SQUARE_ROOT(semiPerimeter * (semiPerimeter - side_one) * (semiPerimeter - side_two) * (semiPerimeter - side_three))
+        END METHOD
+END CLASS
+CLASS CANVAS
+    ATTRIBUTES
+        PRIVATE shapes: LIST<SHAPE>[]
+    CONSTRUCTOR()
+        SET shapes TO EMPTY LIST
+    END CONSTRUCTOR
+    METHODS
+        ADD_SHAPE(newShape: SHAPE)
+            ADD newShape TO shapes
+            DISPLAY "SHAPE ADDED TO CANVAS"
+        END METHOD
+        GET_SHAPES()
+            RETURN shapes
+        END MEHOD
+        CALCULATE_TOTAL_AREA()
+            SET total TO 0
+            REPEAT FROM I = 0 TO SIZE OF shapes - 1
+                SET total TO total + shapes[I].GET_AREA()
+            END REPEAT
+            RETURN total
+        END METHOD
+END CLASS
+START
+    BEGIN
+        CREATE OBJECT canvas1 OF CANVAS()
+        CREATE OBJECT circle1 OF CIRCLE("Red", "x=10,y=20", 5)
+        CREATE OBJECT rectangle1 OF RECTANGLE("Blue", "x=30,y=40", 10, 6)
+        CREATE OBJECT triangle1 OF TRIANGLE("Green", "x=50,y=60", 3, 4, 5)
+        CALL canvas1.ADD_SHAPE(circle1)
+        CALL canvas1.ADD_SHAPE(rectangle1)
+        CALL canvas1.ADD_SHAPE(triangle1)
+        DISPLAY circle1.GET_AREA()
+        DISPLAY rectangle1.GET_PERIMETER()
+        DISPLAY triangle1.GET_AREA()
+        DISPLAY canvas1.CALCULATE_TOTAL_AREA()
+    END
+STOP
+
+
+______________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+
+
