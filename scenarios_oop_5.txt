@@ -1,0 +1,183 @@
+TASK 308: Insurance Claims Processing
+CLASS DOCUMENTATION_FOLDER
+    ATTRIBUTES
+        PRIVATE documents: LIST<TEXT>[]
+    CONSTRUCTOR()
+        SET documents TO EMPTY LIST
+    END CONSTRUCTOR
+    METHODS
+        ADD_DOCUMENT(documentName: TEXT)
+            ADD documentName TO documents
+            DISPLAY "DOCUMENT ADDED"
+        END METHOD
+
+        GET_DOCUMENTS()
+            RETURN documents
+        END METHOD
+END CLASS
+CLASS CLAIM
+    ATTRIBUTES
+        PRIVATE claim_number: NUMBER
+        PRIVATE date_filed: TEXT
+        PRIVATE status: TEXT
+        PRIVATE documentation_folder: DOCUMENTATION_FOLDER
+
+    CONSTRUCTOR(claimNumber: NUMBER, filedDate: TEXT)
+        SET claim_number TO claimNumber
+        SET date_filed TO filedDate
+        SET status TO "FILED"
+        CREATE OBJECT folder OF DOCUMENTATION_FOLDER()
+        SET documentation_folder TO folder
+    END CONSTRUCTOR
+    METHODS
+        GET_STATUS()
+            RETURN status
+        END METHOD
+        GET_DOCUMENTATION_FOLDER()
+            RETURN documentation_folder
+        END METHOD
+        MOVE_TO_REVIEW()
+            IF status EQUALS "FILED" THEN
+                SET status TO "UNDER_REVIEW"
+            ELSE
+                DISPLAY "INVALID STATUS CHANGE"
+            END IF
+        END METHOD
+        APPROVE()
+            IF status EQUALS "UNDER_REVIEW" THEN
+                SET status TO "APPROVED"
+            ELSE
+                DISPLAY "INVALID STATUS CHANGE"
+            END IF
+        END METHOD
+        REJECT()
+            IF status EQUALS "UNDER_REVIEW" THEN
+                SET status TO "REJECTED"
+            ELSE
+                DISPLAY "INVALID STATUS CHANGE"
+            END IF
+        END METHOD
+        CALCULATE_PAYOUT()
+            RETURN 0
+        END METHOD
+END CLASS
+CLASS VEHICLE_CLAIM INHERITS CLAIM
+    ATTRIBUTES
+        PRIVATE repair_estimate: NUMBER
+        PRIVATE fixed_excess: NUMBER
+    CONSTRUCTOR(claimNumber: NUMBER, filedDate: TEXT, repairEstimate: NUMBER, excess: NUMBER)
+        CALL SUPER(claimNumber, filedDate)
+        IF repairEstimate GREATER THAN 0 THEN
+            SET repair_estimate TO repairEstimate
+        ELSE
+            SET repair_estimate TO 0
+        END IF
+        IF excess GREATER THAN 0 THEN
+            SET fixed_excess TO excess
+        ELSE
+            SET fixed_excess TO 0
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        CALCULATE_PAYOUT()
+            SET payout TO repair_estimate - fixed_excess
+            IF payout LESS THAN 0 THEN
+                RETURN 0
+            ELSE
+                RETURN payout
+            END IF
+        END METHOD
+END CLASS
+CLASS MEDICAL_CLAIM INHERITS CLAIM
+    ATTRIBUTES
+        PRIVATE treatment_cost: NUMBER
+        PRIVATE medical_coverage_limit: NUMBER
+    CONSTRUCTOR(claimNumber: NUMBER, filedDate: TEXT, cost: NUMBER, coverageLimit: NUMBER)
+        CALL SUPER(claimNumber, filedDate)
+        IF cost GREATER THAN 0 THEN
+            SET treatment_cost TO cost
+        ELSE
+            SET treatment_cost TO 0
+        END IF
+        IF coverageLimit GREATER THAN 0 THEN
+            SET medical_coverage_limit TO coverageLimit
+        ELSE
+            SET medical_coverage_limit TO 0
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        CALCULATE_PAYOUT()
+            IF treatment_cost GREATER THAN medical_coverage_limit THEN
+                RETURN medical_coverage_limit
+            ELSE
+                RETURN treatment_cost
+            END IF
+        END METHOD
+END CLASS
+CLASS PROPERTY_CLAIM INHERITS CLAIM
+    ATTRIBUTES
+        PRIVATE estimated_damage_value: NUMBER
+        PRIVATE maintained_properly: BOOLEAN
+        PRIVATE reduction_percentage: NUMBER
+    CONSTRUCTOR(claimNumber: NUMBER, filedDate: TEXT, damageValue: NUMBER, maintained: BOOLEAN, reduction: NUMBER)
+        CALL SUPER(claimNumber, filedDate)
+        IF damageValue GREATER THAN 0 THEN
+            SET estimated_damage_value TO damageValue
+        ELSE
+            SET estimated_damage_value TO 0
+        END IF
+        SET maintained_properly TO maintained
+        IF reduction GREATER THAN 0 THEN
+            SET reduction_percentage TO reduction
+        ELSE
+            SET reduction_percentage TO 0
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        CALCULATE_PAYOUT()
+            IF maintained_properly EQUALS TRUE THEN
+                RETURN estimated_damage_value
+            ELSE
+                RETURN estimated_damage_value - (estimated_damage_value * reduction_percentage / 100)
+            END IF
+        END METHOD
+END CLASS
+CLASS POLICY
+    ATTRIBUTES
+        PRIVATE policy_number: NUMBER
+        PRIVATE holder_name: TEXT
+        PRIVATE claims: LIST<CLAIM>[]
+
+    CONSTRUCTOR(policyNumber: NUMBER, holderName: TEXT)
+        SET policy_number TO policyNumber
+        SET holder_name TO holderName
+        SET claims TO EMPTY LIST
+    END CONSTRUCTOR
+    METHODS
+        ADD_CLAIM(newClaim: CLAIM)
+            ADD newClaim TO claims
+            DISPLAY "CLAIM ADDED TO POLICY"
+        END METHOD
+        CALCULATE_TOTAL_PAYOUT()
+            SET total TO 0
+            REPEAT FROM I = 0 TO SIZE OF claims - 1
+                SET total TO total + claims[I].CALCULATE_PAYOUT()
+            END REPEAT
+            RETURN total
+        END METHOD
+END CLASS
+START
+    BEGIN
+        CREATE OBJECT policy1 OF POLICY(1001, "Mohammed")
+        CREATE OBJECT vehicleClaim1 OF VEHICLE_CLAIM(1, "2026-07-07", 1000, 100)
+        CREATE OBJECT medicalClaim1 OF MEDICAL_CLAIM(2, "2026-07-08", 2000, 1500)
+        CREATE OBJECT propertyClaim1 OF PROPERTY_CLAIM(3, "2026-07-09", 3000, FALSE, 20)
+        CALL vehicleClaim1.GET_DOCUMENTATION_FOLDER().ADD_DOCUMENT("Repair estimate.pdf")
+        CALL medicalClaim1.GET_DOCUMENTATION_FOLDER().ADD_DOCUMENT("Hospital invoice.pdf")
+        CALL propertyClaim1.GET_DOCUMENTATION_FOLDER().ADD_DOCUMENT("Inspection report.pdf")
+        CALL policy1.ADD_CLAIM(vehicleClaim1)
+        CALL policy1.ADD_CLAIM(medicalClaim1)
+        CALL policy1.ADD_CLAIM(propertyClaim1)
+        DISPLAY policy1.CALCULATE_TOTAL_PAYOUT()
+    END
+STOP
