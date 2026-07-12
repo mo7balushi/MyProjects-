@@ -1,1018 +1,2097 @@
-Task 293: Shape Drawing App
-START
-  BEGIN
-CLASS Shape
-    ATTRIBUTES
-        PRIVATE color : String
-        PRIVATE position : String
+TASK 293: Shape Drawing App
 
-    CONSTRUCTOR(color, position)
-        SET color
-        SET position
+CLASS SHAPE
+    ATTRIBUTES
+        PRIVATE color: TEXT
+        PRIVATE x: NUMBER
+        PRIVATE y: NUMBER
+
+    CONSTRUCTOR(shapeColor: TEXT, xValue: NUMBER, yValue: NUMBER)
+        SET this.color TO shapeColor
+        SET this.x TO xValue
+        SET this.y TO yValue
     END CONSTRUCTOR
 
-    METHOD getArea()
-        RETURN 0
-    END METHOD
+    METHODS
+        GET_COLOR()
+            RETURN this.color
+        END METHOD
 
-    METHOD getPerimeter()
-        RETURN 0
-    END METHOD
+        GET_POSITION()
+            DISPLAY "X: " + this.x
+            DISPLAY "Y: " + this.y
+        END METHOD
+
+        GET_AREA()
+            DISPLAY "GET_AREA must be overridden by child class"
+            RETURN 0
+        END METHOD
+
+        GET_PERIMETER()
+            DISPLAY "GET_PERIMETER must be overridden by child class"
+            RETURN 0
+        END METHOD
 END CLASS
 
-CLASS Circle EXTENDS Shape
-    ATTRIBUTES
-        PRIVATE radius : Number
 
-    CONSTRUCTOR(color, position, radius)
-        CALL Shape(color, position)
-        SET radius
+CLASS CIRCLE EXTENDS SHAPE
+    ATTRIBUTES
+        PRIVATE radius: NUMBER
+
+    CONSTRUCTOR(shapeColor: TEXT, xValue: NUMBER, yValue: NUMBER, circleRadius: NUMBER)
+        CALL SUPER(shapeColor, xValue, yValue)
+
+        IF circleRadius GREATER THAN 0 THEN
+            SET this.radius TO circleRadius
+        ELSE
+            SET this.radius TO 0
+            DISPLAY "INVALID RADIUS"
+        END IF
     END CONSTRUCTOR
 
-    METHOD getArea()
-        RETURN 3.14 * radius * radius
-    END METHOD
+    METHODS
+        GET_AREA()
+            RETURN 3.14 * this.radius * this.radius
+        END METHOD
 
-    METHOD getPerimeter()
-        RETURN 2 * 3.14 * radius
-    END METHOD
+        GET_PERIMETER()
+            RETURN 2 * 3.14 * this.radius
+        END METHOD
 END CLASS
 
-CLASS Rectangle EXTENDS Shape
-    ATTRIBUTES
-        PRIVATE width : Number
-        PRIVATE height : Number
 
-    CONSTRUCTOR(color, position, width, height)
-        CALL Shape(color, position)
-        SET width
-        SET height
+CLASS RECTANGLE EXTENDS SHAPE
+    ATTRIBUTES
+        PRIVATE width: NUMBER
+        PRIVATE height: NUMBER
+
+    CONSTRUCTOR(shapeColor: TEXT, xValue: NUMBER, yValue: NUMBER, rectWidth: NUMBER, rectHeight: NUMBER)
+        CALL SUPER(shapeColor, xValue, yValue)
+
+        IF rectWidth GREATER THAN 0 THEN
+            SET this.width TO rectWidth
+        ELSE
+            SET this.width TO 0
+            DISPLAY "INVALID WIDTH"
+        END IF
+
+        IF rectHeight GREATER THAN 0 THEN
+            SET this.height TO rectHeight
+        ELSE
+            SET this.height TO 0
+            DISPLAY "INVALID HEIGHT"
+        END IF
     END CONSTRUCTOR
 
-    METHOD getArea()
-        RETURN width * height
-    END METHOD
+    METHODS
+        GET_AREA()
+            RETURN this.width * this.height
+        END METHOD
 
-    METHOD getPerimeter()
-        RETURN 2 * (width + height)
-    END METHOD
+        GET_PERIMETER()
+            RETURN 2 * (this.width + this.height)
+        END METHOD
 END CLASS
 
-CLASS Triangle EXTENDS Shape
-    ATTRIBUTES
-        PRIVATE side1 : Number
-        PRIVATE side2 : Number
-        PRIVATE side3 : Number
 
-    CONSTRUCTOR(color, position, side1, side2, side3)
-        CALL Shape(color, position)
-        SET side1
-        SET side2
-        SET side3
+CLASS TRIANGLE EXTENDS SHAPE
+    ATTRIBUTES
+        PRIVATE side_one: NUMBER
+        PRIVATE side_two: NUMBER
+        PRIVATE side_three: NUMBER
+
+    CONSTRUCTOR(shapeColor: TEXT, xValue: NUMBER, yValue: NUMBER, s1: NUMBER, s2: NUMBER, s3: NUMBER)
+        CALL SUPER(shapeColor, xValue, yValue)
+
+        IF s1 GREATER THAN 0 THEN
+            SET this.side_one TO s1
+        ELSE
+            SET this.side_one TO 0
+        END IF
+
+        IF s2 GREATER THAN 0 THEN
+            SET this.side_two TO s2
+        ELSE
+            SET this.side_two TO 0
+        END IF
+
+        IF s3 GREATER THAN 0 THEN
+            SET this.side_three TO s3
+        ELSE
+            SET this.side_three TO 0
+        END IF
     END CONSTRUCTOR
 
-    METHOD getArea()
-        SET s = (side1 + side2 + side3) / 2
-        RETURN SQRT(s * (s - side1) * (s - side2) * (s - side3))
-    END METHOD
+    METHODS
+        GET_PERIMETER()
+            RETURN this.side_one + this.side_two + this.side_three
+        END METHOD
 
-    METHOD getPerimeter()
-        RETURN side1 + side2 + side3
-    END METHOD
+        GET_AREA()
+            SET semiPerimeter TO GET_PERIMETER() / 2
+
+            RETURN SQUARE_ROOT(semiPerimeter * (semiPerimeter - this.side_one) * (semiPerimeter - this.side_two) * (semiPerimeter - this.side_three))
+        END METHOD
 END CLASS
 
-CLASS Canvas
+
+CLASS CANVAS
     ATTRIBUTES
-        PRIVATE shapes : List<Shape>
+        PRIVATE shapes: LIST<SHAPE>[]
 
     CONSTRUCTOR()
-        CREATE empty shapes list
+        SET this.shapes TO EMPTY LIST
     END CONSTRUCTOR
 
-    METHOD addShape(shape)
-        ADD shape TO shapes
-    END METHOD
+    METHODS
+        ADD_SHAPE(newShape: SHAPE)
+            ADD newShape TO this.shapes
+            DISPLAY "SHAPE ADDED TO CANVAS"
+        END METHOD
+
+        CALCULATE_TOTAL_AREA()
+            SET total TO 0
+
+            REPEAT FROM I = 0 TO SIZE OF this.shapes - 1
+                SET total TO total + this.shapes[I].GET_AREA()
+            END REPEAT
+
+            RETURN total
+        END METHOD
 END CLASS
-END
+
+
+START
+    BEGIN
+        CREATE OBJECT canvas1 OF CANVAS()
+
+        CREATE OBJECT circle1 OF CIRCLE("Red", 10, 20, 5)
+        CREATE OBJECT rectangle1 OF RECTANGLE("Blue", 30, 40, 10, 6)
+        CREATE OBJECT triangle1 OF TRIANGLE("Green", 50, 60, 3, 4, 5)
+
+        CALL canvas1.ADD_SHAPE(circle1)
+        CALL canvas1.ADD_SHAPE(rectangle1)
+        CALL canvas1.ADD_SHAPE(triangle1)
+
+        DISPLAY canvas1.CALCULATE_TOTAL_AREA()
+    END
 STOP
 
+__________________________________________________________________________________________________________________________
 
-Task 294: Employee Payroll
-START
-  BEGIN
+TASK 294: Employee Payroll
 
-CLASS Employee
+CLASS EMPLOYEE
     ATTRIBUTES
-        PRIVATE employeeID : Number
-        PRIVATE employeeName : String
-        PRIVATE hireDate : String
+        PRIVATE employee_id: NUMBER
+        PRIVATE name: TEXT
 
-    CONSTRUCTOR(employeeID, employeeName, hireDate)
-        SET employeeID
-        SET employeeName
-        SET hireDate
+    CONSTRUCTOR(employeeID: NUMBER, employeeName: TEXT)
+        SET this.employee_id TO employeeID
+        SET this.name TO employeeName
     END CONSTRUCTOR
 
-    METHOD calculatePay()
-        RETURN 0
-    END METHOD
+    METHODS
+        GET_NAME()
+            RETURN this.name
+        END METHOD
+
+        CALCULATE_PAY()
+            DISPLAY "CALCULATE_PAY must be overridden by child class"
+            RETURN 0
+        END METHOD
 END CLASS
 
-CLASS SalariedEmployee EXTENDS Employee
-    ATTRIBUTES
-        PRIVATE monthlySalary : Number
 
-    CONSTRUCTOR(employeeID, employeeName, hireDate, monthlySalary)
-        CALL Employee(employeeID, employeeName, hireDate)
-        SET monthlySalary
+CLASS SALARIED_EMPLOYEE EXTENDS EMPLOYEE
+    ATTRIBUTES
+        PRIVATE monthly_salary: NUMBER
+
+    CONSTRUCTOR(employeeID: NUMBER, employeeName: TEXT, salary: NUMBER)
+        CALL SUPER(employeeID, employeeName)
+
+        IF salary GREATER THAN 0 THEN
+            SET this.monthly_salary TO salary
+        ELSE
+            SET this.monthly_salary TO 0
+            DISPLAY "INVALID SALARY"
+        END IF
     END CONSTRUCTOR
 
-    METHOD calculatePay()
-        RETURN monthlySalary
-    END METHOD
+    METHODS
+        CALCULATE_PAY()
+            RETURN this.monthly_salary
+        END METHOD
 END CLASS
 
-CLASS HourlyEmployee EXTENDS Employee
-    ATTRIBUTES
-        PRIVATE hourlyRate : Number
-        PRIVATE hoursWorked : Number
 
-    CONSTRUCTOR(employeeID, employeeName, hireDate, hourlyRate, hoursWorked)
-        CALL Employee(employeeID, employeeName, hireDate)
-        SET hourlyRate
-        SET hoursWorked
+CLASS HOURLY_EMPLOYEE EXTENDS EMPLOYEE
+    ATTRIBUTES
+        PRIVATE hourly_rate: NUMBER
+        PRIVATE hours_worked: NUMBER
+
+    CONSTRUCTOR(employeeID: NUMBER, employeeName: TEXT, rate: NUMBER, hours: NUMBER)
+        CALL SUPER(employeeID, employeeName)
+
+        IF rate GREATER THAN 0 THEN
+            SET this.hourly_rate TO rate
+        ELSE
+            SET this.hourly_rate TO 0
+        END IF
+
+        IF hours GREATER THAN OR EQUAL TO 0 THEN
+            SET this.hours_worked TO hours
+        ELSE
+            SET this.hours_worked TO 0
+        END IF
     END CONSTRUCTOR
 
-    METHOD calculatePay()
-        RETURN hourlyRate * hoursWorked
-    END METHOD
+    METHODS
+        CALCULATE_PAY()
+            RETURN this.hourly_rate * this.hours_worked
+        END METHOD
 END CLASS
 
-CLASS CommissionEmployee EXTENDS Employee
-    ATTRIBUTES
-        PRIVATE basePay : Number
-        PRIVATE sales : Number
-        PRIVATE commissionRate : Number
 
-    CONSTRUCTOR(employeeID, employeeName, hireDate, basePay, sales, commissionRate)
-        CALL Employee(employeeID, employeeName, hireDate)
-        SET basePay
-        SET sales
-        SET commissionRate
+CLASS COMMISSION_EMPLOYEE EXTENDS EMPLOYEE
+    ATTRIBUTES
+        PRIVATE sales_amount: NUMBER
+        PRIVATE commission_rate: NUMBER
+
+    CONSTRUCTOR(employeeID: NUMBER, employeeName: TEXT, sales: NUMBER, rate: NUMBER)
+        CALL SUPER(employeeID, employeeName)
+
+        IF sales GREATER THAN OR EQUAL TO 0 THEN
+            SET this.sales_amount TO sales
+        ELSE
+            SET this.sales_amount TO 0
+        END IF
+
+        IF rate GREATER THAN 0 THEN
+            SET this.commission_rate TO rate
+        ELSE
+            SET this.commission_rate TO 0
+        END IF
     END CONSTRUCTOR
 
-    METHOD calculatePay()
-        RETURN basePay + (sales * commissionRate)
-    END METHOD
+    METHODS
+        CALCULATE_PAY()
+            RETURN this.sales_amount * this.commission_rate
+        END METHOD
 END CLASS
 
-CLASS Payroll
+
+CLASS PAYROLL
     ATTRIBUTES
-        PRIVATE employees : List<Employee>
+        PRIVATE employees: LIST<EMPLOYEE>[]
 
     CONSTRUCTOR()
-        CREATE empty employees list
+        SET this.employees TO EMPTY LIST
     END CONSTRUCTOR
 
-    METHOD addEmployee(employee)
-        ADD employee TO employees
-    END METHOD
+    METHODS
+        ADD_EMPLOYEE(newEmployee: EMPLOYEE)
+            ADD newEmployee TO this.employees
+            DISPLAY "EMPLOYEE ADDED"
+        END METHOD
+
+        CALCULATE_TOTAL_PAYROLL()
+            SET total TO 0
+
+            REPEAT FROM I = 0 TO SIZE OF this.employees - 1
+                SET total TO total + this.employees[I].CALCULATE_PAY()
+            END REPEAT
+
+            RETURN total
+        END METHOD
 END CLASS
 
-  END
-STOP
 
-Task 295: Zoo Animal Enclosures
 START
     BEGIN
-  CLASS Animal
-    ATTRIBUTES
-        PRIVATE name : String
-        PRIVATE age : Number
-        PRIVATE dietType : String
+        CREATE OBJECT payroll1 OF PAYROLL()
 
-    CONSTRUCTOR(name, age, dietType)
-        SET name
-        SET age
-        SET dietType
-    END CONSTRUCTOR
+        CREATE OBJECT emp1 OF SALARIED_EMPLOYEE(1, "Ali", 1000)
+        CREATE OBJECT emp2 OF HOURLY_EMPLOYEE(2, "Mohammed", 5, 160)
+        CREATE OBJECT emp3 OF COMMISSION_EMPLOYEE(3, "Ahmed", 5000, 0.10)
 
-    METHOD makeSound()
-    END METHOD
+        CALL payroll1.ADD_EMPLOYEE(emp1)
+        CALL payroll1.ADD_EMPLOYEE(emp2)
+        CALL payroll1.ADD_EMPLOYEE(emp3)
 
-    METHOD move()
-    END METHOD
-END CLASS
-
-CLASS Bird EXTENDS Animal
-    ATTRIBUTES
-        PRIVATE canFly : Boolean
-        PRIVATE laysEggs : Boolean
-
-    CONSTRUCTOR(name, age, dietType, canFly, laysEggs)
-        CALL Animal(name, age, dietType)
-        SET canFly
-        SET laysEggs
-    END CONSTRUCTOR
-
-    METHOD makeSound()
-        DISPLAY "Chirp"
-    END METHOD
-
-    METHOD move()
-        DISPLAY "Flies"
-    END METHOD
-END CLASS
-
-CLASS Fish EXTENDS Animal
-    ATTRIBUTES
-        PRIVATE hasGills : Boolean
-
-    CONSTRUCTOR(name, age, dietType, hasGills)
-        CALL Animal(name, age, dietType)
-        SET hasGills
-    END CONSTRUCTOR
-
-    METHOD makeSound()
-        DISPLAY "Blub"
-    END METHOD
-
-    METHOD move()
-        DISPLAY "Swims"
-    END METHOD
-END CLASS
-
-CLASS Mammal EXTENDS Animal
-    ATTRIBUTES
-        PRIVATE hasFur : Boolean
-        PRIVATE givesLiveBirth : Boolean
-
-    CONSTRUCTOR(name, age, dietType, hasFur, givesLiveBirth)
-        CALL Animal(name, age, dietType)
-        SET hasFur
-        SET givesLiveBirth
-    END CONSTRUCTOR
-
-    METHOD makeSound()
-        DISPLAY "Mammal Sound"
-    END METHOD
-
-    METHOD move()
-        DISPLAY "Walks"
-    END METHOD
-END CLASS
-
-CLASS Enclosure
-    ATTRIBUTES
-        PRIVATE enclosureID : Number
-        PRIVATE temperature : Number
-        PRIVATE animals : List<Animal>
-
-    CONSTRUCTOR(enclosureID, temperature)
-        SET enclosureID
-        SET temperature
-        CREATE empty animals list
-    END CONSTRUCTOR
-
-    METHOD addAnimal(animal)
-        ADD animal TO animals
-    END METHOD
-END CLASS
-
-END
+        DISPLAY payroll1.CALCULATE_TOTAL_PAYROLL()
+    END
 STOP
 
-Task 296: Online Payment Methods
-START
-    BEGIN
+_______________________________________________________________________________________________________________________________________________
 
-CLASS PaymentMethod
+TASK 295: Zoo Animal Enclosures
+
+CLASS ANIMAL
     ATTRIBUTES
-        PRIVATE amount : Number
-        PRIVATE status : String
+        PRIVATE name: TEXT
+        PRIVATE species: TEXT
+        PRIVATE required_temperature: NUMBER
 
-    CONSTRUCTOR(amount)
-        SET amount
-        SET status = "Pending"
+    CONSTRUCTOR(animalName: TEXT, animalSpecies: TEXT, temp: NUMBER)
+        SET this.name TO animalName
+        SET this.species TO animalSpecies
+        SET this.required_temperature TO temp
     END CONSTRUCTOR
 
-    METHOD processPayment()
-    END METHOD
+    METHODS
+        GET_NAME()
+            RETURN this.name
+        END METHOD
+
+        GET_REQUIRED_TEMPERATURE()
+            RETURN this.required_temperature
+        END METHOD
+
+        MAKE_SOUND()
+            DISPLAY "MAKE_SOUND must be overridden by child class"
+        END METHOD
+
+        MOVE()
+            DISPLAY "MOVE must be overridden by child class"
+        END METHOD
 END CLASS
 
-CLASS CreditCardPayment EXTENDS PaymentMethod
-    ATTRIBUTES
-        PRIVATE cardNumber : String
-        PRIVATE expiryDate : String
 
-    CONSTRUCTOR(amount, cardNumber, expiryDate)
-        CALL PaymentMethod(amount)
-        SET cardNumber
-        SET expiryDate
+CLASS BIRD EXTENDS ANIMAL
+    ATTRIBUTES
+        PRIVATE wing_span: NUMBER
+
+    CONSTRUCTOR(animalName: TEXT, animalSpecies: TEXT, temp: NUMBER, wingSpan: NUMBER)
+        CALL SUPER(animalName, animalSpecies, temp)
+        SET this.wing_span TO wingSpan
     END CONSTRUCTOR
 
-    METHOD processPayment()
-        IF validateCard() THEN
-            SET status = "Completed"
+    METHODS
+        MAKE_SOUND()
+            DISPLAY "Bird chirps"
+        END METHOD
+
+        MOVE()
+            DISPLAY "Bird flies"
+        END METHOD
+END CLASS
+
+
+CLASS FISH EXTENDS ANIMAL
+    ATTRIBUTES
+        PRIVATE water_type: TEXT
+
+    CONSTRUCTOR(animalName: TEXT, animalSpecies: TEXT, temp: NUMBER, waterType: TEXT)
+        CALL SUPER(animalName, animalSpecies, temp)
+        SET this.water_type TO waterType
+    END CONSTRUCTOR
+
+    METHODS
+        MAKE_SOUND()
+            DISPLAY "Fish makes bubbles"
+        END METHOD
+
+        MOVE()
+            DISPLAY "Fish swims"
+        END METHOD
+END CLASS
+
+
+CLASS MAMMAL EXTENDS ANIMAL
+    ATTRIBUTES
+        PRIVATE fur_type: TEXT
+        PRIVATE sound: TEXT
+
+    CONSTRUCTOR(animalName: TEXT, animalSpecies: TEXT, temp: NUMBER, furType: TEXT, animalSound: TEXT)
+        CALL SUPER(animalName, animalSpecies, temp)
+        SET this.fur_type TO furType
+        SET this.sound TO animalSound
+    END CONSTRUCTOR
+
+    METHODS
+        MAKE_SOUND()
+            DISPLAY this.sound
+        END METHOD
+
+        MOVE()
+            DISPLAY "Mammal walks or runs"
+        END METHOD
+END CLASS
+
+
+CLASS ENCLOSURE
+    ATTRIBUTES
+        PRIVATE enclosure_id: NUMBER
+        PRIVATE temperature: NUMBER
+        PRIVATE animals: LIST<ANIMAL>[]
+
+    CONSTRUCTOR(enclosureID: NUMBER, enclosureTemperature: NUMBER)
+        SET this.enclosure_id TO enclosureID
+        SET this.temperature TO enclosureTemperature
+        SET this.animals TO EMPTY LIST
+    END CONSTRUCTOR
+
+    METHODS
+        IS_COMPATIBLE(animal: ANIMAL)
+            IF animal.GET_REQUIRED_TEMPERATURE() EQUALS this.temperature THEN
+                RETURN TRUE
+            ELSE
+                RETURN FALSE
+            END IF
+        END METHOD
+
+        ADD_ANIMAL(animal: ANIMAL)
+            IF IS_COMPATIBLE(animal) EQUALS TRUE THEN
+                ADD animal TO this.animals
+                DISPLAY "ANIMAL ADDED"
+                RETURN TRUE
+            ELSE
+                DISPLAY "ANIMAL NOT COMPATIBLE WITH ENCLOSURE TEMPERATURE"
+                RETURN FALSE
+            END IF
+        END METHOD
+END CLASS
+
+
+START
+    BEGIN
+        CREATE OBJECT enclosure1 OF ENCLOSURE(101, 25)
+
+        CREATE OBJECT bird1 OF BIRD("Sky", "Parrot", 25, 30)
+        CREATE OBJECT fish1 OF FISH("Goldie", "Goldfish", 20, "Freshwater")
+        CREATE OBJECT mammal1 OF MAMMAL("Leo", "Lion", 25, "Short fur", "Roar")
+
+        CALL enclosure1.ADD_ANIMAL(bird1)
+        CALL enclosure1.ADD_ANIMAL(fish1)
+        CALL enclosure1.ADD_ANIMAL(mammal1)
+
+        CALL mammal1.MAKE_SOUND()
+    END
+STOP
+
+____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+TASK 294: Employee Payroll
+
+CLASS EMPLOYEE
+    ATTRIBUTES
+        PRIVATE employee_id: NUMBER
+        PRIVATE name: TEXT
+
+    CONSTRUCTOR(employeeID: NUMBER, employeeName: TEXT)
+        SET this.employee_id TO employeeID
+        SET this.name TO employeeName
+    END CONSTRUCTOR
+
+    METHODS
+        GET_NAME()
+            RETURN this.name
+        END METHOD
+
+        CALCULATE_PAY()
+            DISPLAY "CALCULATE_PAY must be overridden by child class"
+            RETURN 0
+        END METHOD
+END CLASS
+
+
+CLASS SALARIED_EMPLOYEE EXTENDS EMPLOYEE
+    ATTRIBUTES
+        PRIVATE monthly_salary: NUMBER
+
+    CONSTRUCTOR(employeeID: NUMBER, employeeName: TEXT, salary: NUMBER)
+        CALL SUPER(employeeID, employeeName)
+
+        IF salary GREATER THAN 0 THEN
+            SET this.monthly_salary TO salary
         ELSE
-            DISPLAY "Invalid card details"
+            SET this.monthly_salary TO 0
+            DISPLAY "INVALID SALARY"
         END IF
-    END METHOD
-
-    METHOD validateCard()
-        RETURN TRUE
-    END METHOD
-END CLASS
-
-CLASS BankTransferPayment EXTENDS PaymentMethod
-    ATTRIBUTES
-        PRIVATE accountNumber : String
-
-    CONSTRUCTOR(amount, accountNumber)
-        CALL PaymentMethod(amount)
-        SET accountNumber
     END CONSTRUCTOR
 
-    METHOD processPayment()
-        IF validateAccount() THEN
-            DISPLAY "Processing transfer..."
-            SET status = "Completed"
+    METHODS
+        CALCULATE_PAY()
+            RETURN this.monthly_salary
+        END METHOD
+END CLASS
+
+
+CLASS HOURLY_EMPLOYEE EXTENDS EMPLOYEE
+    ATTRIBUTES
+        PRIVATE hourly_rate: NUMBER
+        PRIVATE hours_worked: NUMBER
+
+    CONSTRUCTOR(employeeID: NUMBER, employeeName: TEXT, rate: NUMBER, hours: NUMBER)
+        CALL SUPER(employeeID, employeeName)
+
+        IF rate GREATER THAN 0 THEN
+            SET this.hourly_rate TO rate
         ELSE
-            DISPLAY "Invalid account number"
+            SET this.hourly_rate TO 0
         END IF
-    END METHOD
 
-    METHOD validateAccount()
-        RETURN TRUE
-    END METHOD
-END CLASS
-
-CLASS WalletPayment EXTENDS PaymentMethod
-    ATTRIBUTES
-        PRIVATE walletBalance : Number
-
-    CONSTRUCTOR(amount, walletBalance)
-        CALL PaymentMethod(amount)
-        SET walletBalance
-    END CONSTRUCTOR
-
-    METHOD processPayment()
-        IF walletBalance >= amount THEN
-            SET walletBalance = walletBalance - amount
-            SET status = "Completed"
+        IF hours GREATER THAN OR EQUAL TO 0 THEN
+            SET this.hours_worked TO hours
         ELSE
-            DISPLAY "Insufficient balance"
+            SET this.hours_worked TO 0
         END IF
-    END METHOD
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_PAY()
+            RETURN this.hourly_rate * this.hours_worked
+        END METHOD
 END CLASS
 
-CLASS Item
+
+CLASS COMMISSION_EMPLOYEE EXTENDS EMPLOYEE
     ATTRIBUTES
-        PRIVATE itemName : String
-        PRIVATE price : Number
+        PRIVATE sales_amount: NUMBER
+        PRIVATE commission_rate: NUMBER
 
-    CONSTRUCTOR(itemName, price)
-        SET itemName
-        SET price
-    END CONSTRUCTOR
+    CONSTRUCTOR(employeeID: NUMBER, employeeName: TEXT, sales: NUMBER, rate: NUMBER)
+        CALL SUPER(employeeID, employeeName)
 
-    METHOD getPrice()
-        RETURN price
-    END METHOD
-END CLASS
-
-CLASS Order
-    ATTRIBUTES
-        PRIVATE orderID : Number
-        PRIVATE items : List<Item>
-        PRIVATE payment : PaymentMethod
-
-    CONSTRUCTOR(orderID)
-        SET orderID
-        CREATE empty items list
-    END CONSTRUCTOR
-
-    METHOD addItem(item)
-        ADD item TO items
-    END METHOD
-
-    METHOD setPayment(payment)
-        SET payment
-    END METHOD
-
-    METHOD getTotal()
-        SET total = 0
-        FOR EACH item IN items
-            SET total = total + item.getPrice()
-        END FOR
-        RETURN total
-    END METHOD
-END CLASS
-
-   END
-STOP
-
-Task 297: Streaming Service Subscriptions
-START
-    BEGIN
-CLASS Subscription
-    ATTRIBUTES
-        PRIVATE startDate : String
-        PRIVATE monthlyPrice : Number
-
-    CONSTRUCTOR(startDate, monthlyPrice)
-        SET startDate
-        SET monthlyPrice
-    END CONSTRUCTOR
-
-    METHOD isActive()
-        RETURN TRUE
-    END METHOD
-
-    METHOD getStreamingQuality()
-    END METHOD
-
-    METHOD getDeviceLimit()
-    END METHOD
-END CLASS
-
-CLASS BasicPlan EXTENDS Subscription
-    CONSTRUCTOR(startDate, monthlyPrice)
-        CALL Subscription(startDate, monthlyPrice)
-    END CONSTRUCTOR
-
-    METHOD getStreamingQuality()
-        RETURN "Standard Definition"
-    END METHOD
-
-    METHOD getDeviceLimit()
-        RETURN 1
-    END METHOD
-END CLASS
-
-CLASS StandardPlan EXTENDS Subscription
-    CONSTRUCTOR(startDate, monthlyPrice)
-        CALL Subscription(startDate, monthlyPrice)
-    END CONSTRUCTOR
-
-    METHOD getStreamingQuality()
-        RETURN "High Definition"
-    END METHOD
-
-    METHOD getDeviceLimit()
-        RETURN 2
-    END METHOD
-END CLASS
-
-CLASS PremiumPlan EXTENDS Subscription
-    ATTRIBUTES
-        PRIVATE offlineDownloads : Boolean
-
-    CONSTRUCTOR(startDate, monthlyPrice)
-        CALL Subscription(startDate, monthlyPrice)
-        SET offlineDownloads = TRUE
-    END CONSTRUCTOR
-
-    METHOD getStreamingQuality()
-        RETURN "Ultra High Definition"
-    END METHOD
-
-    METHOD getDeviceLimit()
-        RETURN 4
-    END METHOD
-END CLASS
-
-CLASS WatchRecord
-    ATTRIBUTES
-        PRIVATE title : String
-        PRIVATE watchDate : String
-
-    CONSTRUCTOR(title, watchDate)
-        SET title
-        SET watchDate
-    END CONSTRUCTOR
-END CLASS
-
-CLASS UserAccount
-    ATTRIBUTES
-        PRIVATE userID : Number
-        PRIVATE userName : String
-        PRIVATE subscription : Subscription
-        PRIVATE watchHistory : List<WatchRecord>
-
-    CONSTRUCTOR(userID, userName, subscription)
-        SET userID
-        SET userName
-        SET subscription
-        CREATE empty watchHistory list
-    END CONSTRUCTOR
-
-    METHOD addWatchRecord(watchRecord)
-        ADD watchRecord TO watchHistory
-    END METHOD
-END CLASS
-
-   END
-STOP
-
-Task 298: Delivery Vehicles Fleet
-START
-    BEGIN
-CLASS Vehicle
-    ATTRIBUTES
-        PRIVATE licencePlate : String
-        PRIVATE fuelLevel : Number
-        PRIVATE engine : Engine
-
-    CONSTRUCTOR(licencePlate, fuelLevel, engine)
-        SET licencePlate
-        SET fuelLevel
-        SET engine
-    END CONSTRUCTOR
-
-    METHOD calculateDeliveryTime(route)
-        RETURN 0
-    END METHOD
-END CLASS
-
-CLASS Van EXTENDS Vehicle
-    ATTRIBUTES
-        PRIVATE cargoCapacity : Number
-
-    CONSTRUCTOR(licencePlate, fuelLevel, engine, cargoCapacity)
-        CALL Vehicle(licencePlate, fuelLevel, engine)
-        SET cargoCapacity
-    END CONSTRUCTOR
-
-    METHOD calculateDeliveryTime(route)
-        RETURN route.getDistance() / 40
-    END METHOD
-END CLASS
-
-CLASS Motorbike EXTENDS Vehicle
-    ATTRIBUTES
-        PRIVATE smallPackagesOnly : Boolean
-
-    CONSTRUCTOR(licencePlate, fuelLevel, engine)
-        CALL Vehicle(licencePlate, fuelLevel, engine)
-        SET smallPackagesOnly = TRUE
-    END CONSTRUCTOR
-
-    METHOD calculateDeliveryTime(route)
-        RETURN route.getDistance() / 60
-    END METHOD
-END CLASS
-
-CLASS Truck EXTENDS Vehicle
-    ATTRIBUTES
-        PRIVATE maxLoad : Number
-
-    CONSTRUCTOR(licencePlate, fuelLevel, engine, maxLoad)
-        CALL Vehicle(licencePlate, fuelLevel, engine)
-        SET maxLoad
-    END CONSTRUCTOR
-
-    METHOD calculateDeliveryTime(route)
-        RETURN route.getDistance() / 30
-    END METHOD
-END CLASS
-
-CLASS Engine
-    ATTRIBUTES
-        PRIVATE horsepower : Number
-        PRIVATE fuelEfficiency : Number
-
-    CONSTRUCTOR(horsepower, fuelEfficiency)
-        SET horsepower
-        SET fuelEfficiency
-    END CONSTRUCTOR
-END CLASS
-
-CLASS Stop
-    ATTRIBUTES
-        PRIVATE address : String
-        PRIVATE package : String
-
-    CONSTRUCTOR(address, package)
-        SET address
-        SET package
-    END CONSTRUCTOR
-END CLASS
-
-CLASS Route
-    ATTRIBUTES
-        PRIVATE stops : List<Stop>
-        PRIVATE distance : Number
-
-    CONSTRUCTOR(distance)
-        SET distance
-        CREATE empty stops list
-    END CONSTRUCTOR
-
-    METHOD addStop(stop)
-        ADD stop TO stops
-    END METHOD
-
-    METHOD getDistance()
-        RETURN distance
-    END METHOD
-END CLASS
-
-   END
-STOP
-
-Task 299: Bank Cards
-START
-    BEGIN
-CLASS Card
-    ATTRIBUTES
-        PRIVATE cardNumber : String
-        PRIVATE expiryDate : String
-        PRIVATE status : String
-        PRIVATE chip : Chip
-
-    CONSTRUCTOR(cardNumber, expiryDate, chip)
-        SET cardNumber
-        SET expiryDate
-        SET status = "Active"
-        SET chip
-    END CONSTRUCTOR
-
-    METHOD authorisePurchase(amount)
-        RETURN FALSE
-    END METHOD
-END CLASS
-
-CLASS DebitCard EXTENDS Card
-    ATTRIBUTES
-        PRIVATE accountBalance : Number
-
-    CONSTRUCTOR(cardNumber, expiryDate, chip, accountBalance)
-        CALL Card(cardNumber, expiryDate, chip)
-        SET accountBalance
-    END CONSTRUCTOR
-
-    METHOD authorisePurchase(amount)
-        IF accountBalance >= amount THEN
-            SET accountBalance = accountBalance - amount
-            RETURN TRUE
+        IF sales GREATER THAN OR EQUAL TO 0 THEN
+            SET this.sales_amount TO sales
         ELSE
+            SET this.sales_amount TO 0
+        END IF
+
+        IF rate GREATER THAN 0 THEN
+            SET this.commission_rate TO rate
+        ELSE
+            SET this.commission_rate TO 0
+        END IF
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_PAY()
+            RETURN this.sales_amount * this.commission_rate
+        END METHOD
+END CLASS
+
+
+CLASS PAYROLL
+    ATTRIBUTES
+        PRIVATE employees: LIST<EMPLOYEE>[]
+
+    CONSTRUCTOR()
+        SET this.employees TO EMPTY LIST
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_EMPLOYEE(newEmployee: EMPLOYEE)
+            ADD newEmployee TO this.employees
+            DISPLAY "EMPLOYEE ADDED"
+        END METHOD
+
+        CALCULATE_TOTAL_PAYROLL()
+            SET total TO 0
+
+            REPEAT FROM I = 0 TO SIZE OF this.employees - 1
+                SET total TO total + this.employees[I].CALCULATE_PAY()
+            END REPEAT
+
+            RETURN total
+        END METHOD
+END CLASS
+
+
+START
+    BEGIN
+        CREATE OBJECT payroll1 OF PAYROLL()
+
+        CREATE OBJECT emp1 OF SALARIED_EMPLOYEE(1, "Ali", 1000)
+        CREATE OBJECT emp2 OF HOURLY_EMPLOYEE(2, "Mohammed", 5, 160)
+        CREATE OBJECT emp3 OF COMMISSION_EMPLOYEE(3, "Ahmed", 5000, 0.10)
+
+        CALL payroll1.ADD_EMPLOYEE(emp1)
+        CALL payroll1.ADD_EMPLOYEE(emp2)
+        CALL payroll1.ADD_EMPLOYEE(emp3)
+
+        DISPLAY payroll1.CALCULATE_TOTAL_PAYROLL()
+    END
+STOP
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+TASK 294: Employee Payroll
+
+CLASS EMPLOYEE
+    ATTRIBUTES
+        PRIVATE employee_id: NUMBER
+        PRIVATE name: TEXT
+
+    CONSTRUCTOR(employeeID: NUMBER, employeeName: TEXT)
+        SET this.employee_id TO employeeID
+        SET this.name TO employeeName
+    END CONSTRUCTOR
+
+    METHODS
+        GET_NAME()
+            RETURN this.name
+        END METHOD
+
+        CALCULATE_PAY()
+            DISPLAY "CALCULATE_PAY must be overridden by child class"
+            RETURN 0
+        END METHOD
+END CLASS
+
+
+CLASS SALARIED_EMPLOYEE EXTENDS EMPLOYEE
+    ATTRIBUTES
+        PRIVATE monthly_salary: NUMBER
+
+    CONSTRUCTOR(employeeID: NUMBER, employeeName: TEXT, salary: NUMBER)
+        CALL SUPER(employeeID, employeeName)
+
+        IF salary GREATER THAN 0 THEN
+            SET this.monthly_salary TO salary
+        ELSE
+            SET this.monthly_salary TO 0
+            DISPLAY "INVALID SALARY"
+        END IF
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_PAY()
+            RETURN this.monthly_salary
+        END METHOD
+END CLASS
+
+
+CLASS HOURLY_EMPLOYEE EXTENDS EMPLOYEE
+    ATTRIBUTES
+        PRIVATE hourly_rate: NUMBER
+        PRIVATE hours_worked: NUMBER
+
+    CONSTRUCTOR(employeeID: NUMBER, employeeName: TEXT, rate: NUMBER, hours: NUMBER)
+        CALL SUPER(employeeID, employeeName)
+
+        IF rate GREATER THAN 0 THEN
+            SET this.hourly_rate TO rate
+        ELSE
+            SET this.hourly_rate TO 0
+        END IF
+
+        IF hours GREATER THAN OR EQUAL TO 0 THEN
+            SET this.hours_worked TO hours
+        ELSE
+            SET this.hours_worked TO 0
+        END IF
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_PAY()
+            RETURN this.hourly_rate * this.hours_worked
+        END METHOD
+END CLASS
+
+
+CLASS COMMISSION_EMPLOYEE EXTENDS EMPLOYEE
+    ATTRIBUTES
+        PRIVATE sales_amount: NUMBER
+        PRIVATE commission_rate: NUMBER
+
+    CONSTRUCTOR(employeeID: NUMBER, employeeName: TEXT, sales: NUMBER, rate: NUMBER)
+        CALL SUPER(employeeID, employeeName)
+
+        IF sales GREATER THAN OR EQUAL TO 0 THEN
+            SET this.sales_amount TO sales
+        ELSE
+            SET this.sales_amount TO 0
+        END IF
+
+        IF rate GREATER THAN 0 THEN
+            SET this.commission_rate TO rate
+        ELSE
+            SET this.commission_rate TO 0
+        END IF
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_PAY()
+            RETURN this.sales_amount * this.commission_rate
+        END METHOD
+END CLASS
+
+
+CLASS PAYROLL
+    ATTRIBUTES
+        PRIVATE employees: LIST<EMPLOYEE>[]
+
+    CONSTRUCTOR()
+        SET this.employees TO EMPTY LIST
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_EMPLOYEE(newEmployee: EMPLOYEE)
+            ADD newEmployee TO this.employees
+            DISPLAY "EMPLOYEE ADDED"
+        END METHOD
+
+        CALCULATE_TOTAL_PAYROLL()
+            SET total TO 0
+
+            REPEAT FROM I = 0 TO SIZE OF this.employees - 1
+                SET total TO total + this.employees[I].CALCULATE_PAY()
+            END REPEAT
+
+            RETURN total
+        END METHOD
+END CLASS
+
+
+START
+    BEGIN
+        CREATE OBJECT payroll1 OF PAYROLL()
+
+        CREATE OBJECT emp1 OF SALARIED_EMPLOYEE(1, "Ali", 1000)
+        CREATE OBJECT emp2 OF HOURLY_EMPLOYEE(2, "Mohammed", 5, 160)
+        CREATE OBJECT emp3 OF COMMISSION_EMPLOYEE(3, "Ahmed", 5000, 0.10)
+
+        CALL payroll1.ADD_EMPLOYEE(emp1)
+        CALL payroll1.ADD_EMPLOYEE(emp2)
+        CALL payroll1.ADD_EMPLOYEE(emp3)
+
+        DISPLAY payroll1.CALCULATE_TOTAL_PAYROLL()
+    END
+STOP
+____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+TASK 295: Zoo Animal Enclosures
+
+CLASS ANIMAL
+    ATTRIBUTES
+        PRIVATE name: TEXT
+        PRIVATE species: TEXT
+        PRIVATE required_temperature: NUMBER
+
+    CONSTRUCTOR(animalName: TEXT, animalSpecies: TEXT, temp: NUMBER)
+        SET this.name TO animalName
+        SET this.species TO animalSpecies
+        SET this.required_temperature TO temp
+    END CONSTRUCTOR
+
+    METHODS
+        GET_NAME()
+            RETURN this.name
+        END METHOD
+
+        GET_REQUIRED_TEMPERATURE()
+            RETURN this.required_temperature
+        END METHOD
+
+        MAKE_SOUND()
+            DISPLAY "MAKE_SOUND must be overridden by child class"
+        END METHOD
+
+        MOVE()
+            DISPLAY "MOVE must be overridden by child class"
+        END METHOD
+END CLASS
+
+
+CLASS BIRD EXTENDS ANIMAL
+    ATTRIBUTES
+        PRIVATE wing_span: NUMBER
+
+    CONSTRUCTOR(animalName: TEXT, animalSpecies: TEXT, temp: NUMBER, wingSpan: NUMBER)
+        CALL SUPER(animalName, animalSpecies, temp)
+        SET this.wing_span TO wingSpan
+    END CONSTRUCTOR
+
+    METHODS
+        MAKE_SOUND()
+            DISPLAY "Bird chirps"
+        END METHOD
+
+        MOVE()
+            DISPLAY "Bird flies"
+        END METHOD
+END CLASS
+
+
+CLASS FISH EXTENDS ANIMAL
+    ATTRIBUTES
+        PRIVATE water_type: TEXT
+
+    CONSTRUCTOR(animalName: TEXT, animalSpecies: TEXT, temp: NUMBER, waterType: TEXT)
+        CALL SUPER(animalName, animalSpecies, temp)
+        SET this.water_type TO waterType
+    END CONSTRUCTOR
+
+    METHODS
+        MAKE_SOUND()
+            DISPLAY "Fish makes bubbles"
+        END METHOD
+
+        MOVE()
+            DISPLAY "Fish swims"
+        END METHOD
+END CLASS
+
+
+CLASS MAMMAL EXTENDS ANIMAL
+    ATTRIBUTES
+        PRIVATE fur_type: TEXT
+        PRIVATE sound: TEXT
+
+    CONSTRUCTOR(animalName: TEXT, animalSpecies: TEXT, temp: NUMBER, furType: TEXT, animalSound: TEXT)
+        CALL SUPER(animalName, animalSpecies, temp)
+        SET this.fur_type TO furType
+        SET this.sound TO animalSound
+    END CONSTRUCTOR
+
+    METHODS
+        MAKE_SOUND()
+            DISPLAY this.sound
+        END METHOD
+
+        MOVE()
+            DISPLAY "Mammal walks or runs"
+        END METHOD
+END CLASS
+
+
+CLASS ENCLOSURE
+    ATTRIBUTES
+        PRIVATE enclosure_id: NUMBER
+        PRIVATE temperature: NUMBER
+        PRIVATE animals: LIST<ANIMAL>[]
+
+    CONSTRUCTOR(enclosureID: NUMBER, enclosureTemperature: NUMBER)
+        SET this.enclosure_id TO enclosureID
+        SET this.temperature TO enclosureTemperature
+        SET this.animals TO EMPTY LIST
+    END CONSTRUCTOR
+
+    METHODS
+        IS_COMPATIBLE(animal: ANIMAL)
+            IF animal.GET_REQUIRED_TEMPERATURE() EQUALS this.temperature THEN
+                RETURN TRUE
+            ELSE
+                RETURN FALSE
+            END IF
+        END METHOD
+
+        ADD_ANIMAL(animal: ANIMAL)
+            IF IS_COMPATIBLE(animal) EQUALS TRUE THEN
+                ADD animal TO this.animals
+                DISPLAY "ANIMAL ADDED"
+                RETURN TRUE
+            ELSE
+                DISPLAY "ANIMAL NOT COMPATIBLE WITH ENCLOSURE TEMPERATURE"
+                RETURN FALSE
+            END IF
+        END METHOD
+END CLASS
+
+
+START
+    BEGIN
+        CREATE OBJECT enclosure1 OF ENCLOSURE(101, 25)
+
+        CREATE OBJECT bird1 OF BIRD("Sky", "Parrot", 25, 30)
+        CREATE OBJECT fish1 OF FISH("Goldie", "Goldfish", 20, "Freshwater")
+        CREATE OBJECT mammal1 OF MAMMAL("Leo", "Lion", 25, "Short fur", "Roar")
+
+        CALL enclosure1.ADD_ANIMAL(bird1)
+        CALL enclosure1.ADD_ANIMAL(fish1)
+        CALL enclosure1.ADD_ANIMAL(mammal1)
+
+        CALL mammal1.MAKE_SOUND()
+    END
+STOP
+‑-________________________________________________________________________________________________________________________
+
+TASK 296: Online Payment Methods
+
+CLASS PAYMENT_METHOD
+    ATTRIBUTES
+        PRIVATE amount: NUMBER
+        PRIVATE status: TEXT
+
+    CONSTRUCTOR(paymentAmount: NUMBER)
+        IF paymentAmount GREATER THAN 0 THEN
+            SET this.amount TO paymentAmount
+        ELSE
+            SET this.amount TO 0
+            DISPLAY "INVALID AMOUNT"
+        END IF
+
+        SET this.status TO "PENDING"
+    END CONSTRUCTOR
+
+    METHODS
+        GET_AMOUNT()
+            RETURN this.amount
+        END METHOD
+
+        PROCESS_PAYMENT()
+            DISPLAY "PROCESS_PAYMENT must be overridden by child class"
             RETURN FALSE
-        END IF
-    END METHOD
+        END METHOD
 END CLASS
 
-CLASS CreditCard EXTENDS Card
-    ATTRIBUTES
-        PRIVATE creditLimit : Number
-        PRIVATE unpaidPurchases : List<Number>
 
-    CONSTRUCTOR(cardNumber, expiryDate, chip, creditLimit)
-        CALL Card(cardNumber, expiryDate, chip)
-        SET creditLimit
-        CREATE empty unpaidPurchases list
+CLASS CREDIT_CARD_PAYMENT EXTENDS PAYMENT_METHOD
+    ATTRIBUTES
+        PRIVATE card_number: TEXT
+        PRIVATE expiry_date: TEXT
+
+    CONSTRUCTOR(amount: NUMBER, cardNumber: TEXT, expiryDate: TEXT)
+        CALL SUPER(amount)
+        SET this.card_number TO cardNumber
+        SET this.expiry_date TO expiryDate
     END CONSTRUCTOR
 
-    METHOD authorisePurchase(amount)
-        IF getOutstandingBalance() + amount <= creditLimit THEN
-            ADD amount TO unpaidPurchases
-            RETURN TRUE
+    METHODS
+        VALIDATE_CARD()
+            IF LENGTH OF this.card_number EQUALS 16 AND this.expiry_date NOT EQUAL TO "" THEN
+                RETURN TRUE
+            ELSE
+                RETURN FALSE
+            END IF
+        END METHOD
+
+        PROCESS_PAYMENT()
+            IF VALIDATE_CARD() EQUALS TRUE THEN
+                DISPLAY "CREDIT CARD PAYMENT APPROVED"
+                RETURN TRUE
+            ELSE
+                DISPLAY "CREDIT CARD PAYMENT REJECTED"
+                RETURN FALSE
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS BANK_TRANSFER_PAYMENT EXTENDS PAYMENT_METHOD
+    ATTRIBUTES
+        PRIVATE bank_account: TEXT
+
+    CONSTRUCTOR(amount: NUMBER, account: TEXT)
+        CALL SUPER(amount)
+        SET this.bank_account TO account
+    END CONSTRUCTOR
+
+    METHODS
+        PROCESS_PAYMENT()
+            IF this.bank_account NOT EQUAL TO "" THEN
+                DISPLAY "BANK TRANSFER PAYMENT APPROVED"
+                RETURN TRUE
+            ELSE
+                DISPLAY "BANK TRANSFER PAYMENT REJECTED"
+                RETURN FALSE
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS WALLET_PAYMENT EXTENDS PAYMENT_METHOD
+    ATTRIBUTES
+        PRIVATE wallet_balance: NUMBER
+
+    CONSTRUCTOR(amount: NUMBER, balance: NUMBER)
+        CALL SUPER(amount)
+        SET this.wallet_balance TO balance
+    END CONSTRUCTOR
+
+    METHODS
+        PROCESS_PAYMENT()
+            IF this.wallet_balance GREATER THAN OR EQUAL TO GET_AMOUNT() THEN
+                SET this.wallet_balance TO this.wallet_balance - GET_AMOUNT()
+                DISPLAY "WALLET PAYMENT APPROVED"
+                RETURN TRUE
+            ELSE
+                DISPLAY "INSUFFICIENT WALLET BALANCE"
+                RETURN FALSE
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS ITEM
+    ATTRIBUTES
+        PRIVATE name: TEXT
+        PRIVATE price: NUMBER
+
+    CONSTRUCTOR(itemName: TEXT, itemPrice: NUMBER)
+        SET this.name TO itemName
+
+        IF itemPrice GREATER THAN 0 THEN
+            SET this.price TO itemPrice
         ELSE
-            RETURN FALSE
+            SET this.price TO 0
         END IF
-    END METHOD
-
-    METHOD getOutstandingBalance()
-        SET total = 0
-        FOR EACH purchase IN unpaidPurchases
-            SET total = total + purchase
-        END FOR
-        RETURN total
-    END METHOD
-END CLASS
-
-CLASS Chip
-    ATTRIBUTES
-        PRIVATE encryptedSecurityData : String
-
-    CONSTRUCTOR(encryptedSecurityData)
-        SET encryptedSecurityData
     END CONSTRUCTOR
+
+    METHODS
+        GET_PRICE()
+            RETURN this.price
+        END METHOD
 END CLASS
 
-   END
-STOP
 
-Task 300: Hospital Staff Scheduling
+CLASS ORDER
+    ATTRIBUTES
+        PRIVATE order_id: NUMBER
+        PRIVATE items: LIST<ITEM>[]
+        PRIVATE payment: PAYMENT_METHOD
+
+    CONSTRUCTOR(orderID: NUMBER)
+        SET this.order_id TO orderID
+        SET this.items TO EMPTY LIST
+        SET this.payment TO NULL
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_ITEM(item: ITEM)
+            ADD item TO this.items
+        END METHOD
+
+        SET_PAYMENT(paymentMethod: PAYMENT_METHOD)
+            SET this.payment TO paymentMethod
+        END METHOD
+
+        GET_TOTAL()
+            SET total TO 0
+
+            REPEAT FROM I = 0 TO SIZE OF this.items - 1
+                SET total TO total + this.items[I].GET_PRICE()
+            END REPEAT
+
+            RETURN total
+        END METHOD
+
+        CHECKOUT()
+            IF this.payment EQUALS NULL THEN
+                DISPLAY "NO PAYMENT METHOD SELECTED"
+                RETURN FALSE
+            END IF
+
+            RETURN this.payment.PROCESS_PAYMENT()
+        END METHOD
+END CLASS
+
+
 START
     BEGIN
-CLASS StaffMember
-    ATTRIBUTES
-        PRIVATE employeeID : Number
-        PRIVATE staffName : String
-        PRIVATE shifts : List<Shift>
+        CREATE OBJECT order1 OF ORDER(101)
 
-    CONSTRUCTOR(employeeID, staffName)
-        SET employeeID
-        SET staffName
-        CREATE empty shifts list
-    END CONSTRUCTOR
+        CREATE OBJECT item1 OF ITEM("Keyboard", 20)
+        CREATE OBJECT item2 OF ITEM("Mouse", 10)
 
-    METHOD assignShift(shift)
-        ADD shift TO shifts
-    END METHOD
+        CALL order1.ADD_ITEM(item1)
+        CALL order1.ADD_ITEM(item2)
 
-    METHOD calculateShiftPay()
-        RETURN 0
-    END METHOD
-END CLASS
+        CREATE OBJECT payment1 OF WALLET_PAYMENT(order1.GET_TOTAL(), 50)
 
-CLASS Doctor EXTENDS StaffMember
-    CONSTRUCTOR(employeeID, staffName)
-        CALL StaffMember(employeeID, staffName)
-    END CONSTRUCTOR
+        CALL order1.SET_PAYMENT(payment1)
 
-    METHOD approveTreatment()
-        DISPLAY "Treatment Approved"
-    END METHOD
-
-    METHOD diagnosePatient()
-        DISPLAY "Diagnosis Completed"
-    END METHOD
-
-    METHOD calculateShiftPay()
-        RETURN 500
-    END METHOD
-END CLASS
-
-CLASS Surgeon EXTENDS Doctor
-    CONSTRUCTOR(employeeID, staffName)
-        CALL Doctor(employeeID, staffName)
-    END CONSTRUCTOR
-
-    METHOD performOperation()
-        DISPLAY "Operation Performed"
-    END METHOD
-
-    METHOD calculateShiftPay()
-        RETURN 800
-    END METHOD
-END CLASS
-
-CLASS Nurse EXTENDS StaffMember
-    CONSTRUCTOR(employeeID, staffName)
-        CALL StaffMember(employeeID, staffName)
-    END CONSTRUCTOR
-
-    METHOD administerMedication()
-        DISPLAY "Medication Administered"
-    END METHOD
-
-    METHOD recordVitalSigns()
-        DISPLAY "Vital Signs Recorded"
-    END METHOD
-
-    METHOD calculateShiftPay()
-        RETURN 300
-    END METHOD
-END CLASS
-
-CLASS Shift
-    ATTRIBUTES
-        PRIVATE startTime : String
-        PRIVATE endTime : String
-        PRIVATE ward : Ward
-
-    CONSTRUCTOR(startTime, endTime, ward)
-        SET startTime
-        SET endTime
-        SET ward
-    END CONSTRUCTOR
-END CLASS
-
-CLASS Ward
-    ATTRIBUTES
-        PRIVATE wardName : String
-        PRIVATE shifts : List<Shift>
-
-    CONSTRUCTOR(wardName)
-        SET wardName
-        CREATE empty shifts list
-    END CONSTRUCTOR
-
-    METHOD addShift(shift)
-        ADD shift TO shifts
-    END METHOD
-END CLASS
-
-   END
+        CALL order1.CHECKOUT()
+    END
 STOP
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+TASK 297: Streaming Service Subscriptions
 
-Task 301: E-book Reader App
-START
-    BEGIN
-
-CLASS Publication
+CLASS SUBSCRIPTION
     ATTRIBUTES
-        PRIVATE title : String
-        PRIVATE author : String
-        PRIVATE totalPages : Number
-        PRIVATE coverImage : CoverImage
+        PRIVATE start_date: NUMBER
 
-    CONSTRUCTOR(title, author, totalPages, coverImage)
-        SET title
-        SET author
-        SET totalPages
-        SET coverImage
+    CONSTRUCTOR(startDate: NUMBER)
+        SET this.start_date TO startDate
     END CONSTRUCTOR
 
-    METHOD getProgress()
-        RETURN 0
-    END METHOD
+    METHODS
+        IS_ACTIVE(currentDate: NUMBER)
+            IF currentDate - this.start_date LESS THAN OR EQUAL TO 30 THEN
+                RETURN TRUE
+            ELSE
+                RETURN FALSE
+            END IF
+        END METHOD
+
+        GET_STREAMING_QUALITY()
+            DISPLAY "GET_STREAMING_QUALITY must be overridden by child class"
+            RETURN ""
+        END METHOD
+
+        GET_DEVICE_LIMIT()
+            RETURN 0
+        END METHOD
 END CLASS
 
-CLASS Novel EXTENDS Publication
-    ATTRIBUTES
-        PRIVATE currentPage : Number
 
-    CONSTRUCTOR(title, author, totalPages, coverImage, currentPage)
-        CALL Publication(title, author, totalPages, coverImage)
-        SET currentPage
+CLASS BASIC_PLAN EXTENDS SUBSCRIPTION
+    CONSTRUCTOR(startDate: NUMBER)
+        CALL SUPER(startDate)
     END CONSTRUCTOR
 
-    METHOD getProgress()
-        RETURN (currentPage / totalPages) * 100
-    END METHOD
+    METHODS
+        GET_STREAMING_QUALITY()
+            RETURN "SD"
+        END METHOD
+
+        GET_DEVICE_LIMIT()
+            RETURN 1
+        END METHOD
 END CLASS
 
-CLASS Magazine EXTENDS Publication
-    ATTRIBUTES
-        PRIVATE totalArticles : Number
-        PRIVATE openedArticles : Number
 
-    CONSTRUCTOR(title, author, totalPages, coverImage, totalArticles, openedArticles)
-        CALL Publication(title, author, totalPages, coverImage)
-        SET totalArticles
-        SET openedArticles
+CLASS STANDARD_PLAN EXTENDS SUBSCRIPTION
+    CONSTRUCTOR(startDate: NUMBER)
+        CALL SUPER(startDate)
     END CONSTRUCTOR
 
-    METHOD getProgress()
-        RETURN (openedArticles / totalArticles) * 100
-    END METHOD
-END CLASS
+    METHODS
+        GET_STREAMING_QUALITY()
+            RETURN "HD"
+        END METHOD
 
-CLASS Audiobook EXTENDS Publication
-    ATTRIBUTES
-        PRIVATE totalListeningTime : Number
-        PRIVATE listenedTime : Number
-
-    CONSTRUCTOR(title, author, totalPages, coverImage, totalListeningTime, listenedTime)
-        CALL Publication(title, author, totalPages, coverImage)
-        SET totalListeningTime
-        SET listenedTime
-    END CONSTRUCTOR
-
-    METHOD getProgress()
-        RETURN (listenedTime / totalListeningTime) * 100
-    END METHOD
-END CLASS
-
-CLASS CoverImage
-    ATTRIBUTES
-        PRIVATE filePath : String
-        PRIVATE dimensions : String
-
-    CONSTRUCTOR(filePath, dimensions)
-        SET filePath
-        SET dimensions
-    END CONSTRUCTOR
-END CLASS
-
-CLASS Library
-    ATTRIBUTES
-        PRIVATE publications : List<Publication>
-
-    CONSTRUCTOR()
-        CREATE empty publications list
-    END CONSTRUCTOR
-
-    METHOD addPublication(publication)
-        ADD publication TO publications
-    END METHOD
-END CLASS
-
-   END
-STOP
-
-Task 302: Smart Home Devices
-START
-    BEGIN
-CLASS Device
-    ATTRIBUTES
-        PRIVATE deviceName : String
-        PRIVATE roomLocation : String
-        PRIVATE status : Boolean
-
-    CONSTRUCTOR(deviceName, roomLocation, status)
-        SET deviceName
-        SET roomLocation
-        SET status
-    END CONSTRUCTOR
-
-    METHOD getPowerUsage()
-        RETURN 0
-    END METHOD
-END CLASS
-
-CLASS SmartLight EXTENDS Device
-    ATTRIBUTES
-        PRIVATE brightnessLevel : Number
-
-    CONSTRUCTOR(deviceName, roomLocation, status, brightnessLevel)
-        CALL Device(deviceName, roomLocation, status)
-        SET brightnessLevel
-    END CONSTRUCTOR
-
-    METHOD getPowerUsage()
-        RETURN brightnessLevel * 0.5
-    END METHOD
-END CLASS
-
-CLASS SmartThermostat EXTENDS Device
-    ATTRIBUTES
-        PRIVATE targetTemperature : Number
-        PRIVATE heatingLevel : Number
-
-    CONSTRUCTOR(deviceName, roomLocation, status, targetTemperature, heatingLevel)
-        CALL Device(deviceName, roomLocation, status)
-        SET targetTemperature
-        SET heatingLevel
-    END CONSTRUCTOR
-
-    METHOD getPowerUsage()
-        RETURN heatingLevel * 2
-    END METHOD
-END CLASS
-
-CLASS SmartCamera EXTENDS Device
-    ATTRIBUTES
-        PRIVATE isRecording : Boolean
-        PRIVATE storageUnit : StorageUnit
-
-    CONSTRUCTOR(deviceName, roomLocation, status, isRecording, storageUnit)
-        CALL Device(deviceName, roomLocation, status)
-        SET isRecording
-        SET storageUnit
-    END CONSTRUCTOR
-
-    METHOD getPowerUsage()
-        IF isRecording THEN
-            RETURN 10
-        ELSE
+        GET_DEVICE_LIMIT()
             RETURN 2
-        END IF
-    END METHOD
-
-    METHOD startRecording()
-        IF storageUnit.hasSpace() THEN
-            SET isRecording = TRUE
-        ELSE
-            DISPLAY "Storage Full"
-        END IF
-    END METHOD
+        END METHOD
 END CLASS
 
 
-CLASS StorageUnit
+CLASS PREMIUM_PLAN EXTENDS SUBSCRIPTION
     ATTRIBUTES
-        PRIVATE capacity : Number
-        PRIVATE usedSpace : Number
+        PRIVATE offline_downloads: BOOLEAN
 
-    CONSTRUCTOR(capacity)
-        SET capacity
-        SET usedSpace = 0
+    CONSTRUCTOR(startDate: NUMBER)
+        CALL SUPER(startDate)
+        SET this.offline_downloads TO TRUE
     END CONSTRUCTOR
 
-    METHOD hasSpace()
-        RETURN usedSpace < capacity
-    END METHOD
+    METHODS
+        GET_STREAMING_QUALITY()
+            RETURN "4K"
+        END METHOD
+
+        GET_DEVICE_LIMIT()
+            RETURN 4
+        END METHOD
+
+        HAS_OFFLINE_DOWNLOADS()
+            RETURN this.offline_downloads
+        END METHOD
 END CLASS
 
 
-CLASS Room
+CLASS WATCH_RECORD
     ATTRIBUTES
-        PRIVATE roomName : String
-        PRIVATE devices : List<Device>
+        PRIVATE title: TEXT
+        PRIVATE watch_date: TEXT
 
-    CONSTRUCTOR(roomName)
-        SET roomName
-        CREATE empty devices list
+    CONSTRUCTOR(recordTitle: TEXT, dateValue: TEXT)
+        SET this.title TO recordTitle
+        SET this.watch_date TO dateValue
+    END CONSTRUCTOR
+END CLASS
+
+
+CLASS USER_ACCOUNT
+    ATTRIBUTES
+        PRIVATE user_id: NUMBER
+        PRIVATE name: TEXT
+        PRIVATE subscription: SUBSCRIPTION
+        PRIVATE watch_history: LIST<WATCH_RECORD>[]
+
+    CONSTRUCTOR(userID: NUMBER, userName: TEXT, userSubscription: SUBSCRIPTION)
+        SET this.user_id TO userID
+        SET this.name TO userName
+        SET this.subscription TO userSubscription
+        SET this.watch_history TO EMPTY LIST
     END CONSTRUCTOR
 
-    METHOD addDevice(device)
-        ADD device TO devices
-    END METHOD
+    METHODS
+        ADD_WATCH_RECORD(record: WATCH_RECORD)
+            IF SIZE OF this.watch_history GREATER THAN OR EQUAL TO 100 THEN
+                REMOVE FIRST ITEM FROM this.watch_history
+            END IF
+
+            ADD record TO this.watch_history
+        END METHOD
+
+        GET_SUBSCRIPTION_QUALITY()
+            RETURN this.subscription.GET_STREAMING_QUALITY()
+        END METHOD
 END CLASS
 
-   END
+
+START
+    BEGIN
+        CREATE OBJECT plan1 OF PREMIUM_PLAN(1)
+
+        CREATE OBJECT user1 OF USER_ACCOUNT(101, "Mohammed", plan1)
+
+        CREATE OBJECT record1 OF WATCH_RECORD("Movie A", "2026-07-07")
+
+        CALL user1.ADD_WATCH_RECORD(record1)
+
+        DISPLAY user1.GET_SUBSCRIPTION_QUALITY()
+
+        DISPLAY plan1.IS_ACTIVE(20)
+    END
 STOP
+___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+TASK 298: Delivery Vehicles Fleet
+
+CLASS ENGINE
+    ATTRIBUTES
+        PRIVATE engine_type: TEXT
+        PRIVATE fuel_efficiency: NUMBER
+
+    CONSTRUCTOR(typeValue: TEXT, efficiency: NUMBER)
+        SET this.engine_type TO typeValue
+
+        IF efficiency GREATER THAN 0 THEN
+            SET this.fuel_efficiency TO efficiency
+        ELSE
+            SET this.fuel_efficiency TO 1
+        END IF
+    END CONSTRUCTOR
+
+    METHODS
+        GET_FUEL_EFFICIENCY()
+            RETURN this.fuel_efficiency
+        END METHOD
+END CLASS
+
+
+CLASS PACKAGE
+    ATTRIBUTES
+        PRIVATE package_id: NUMBER
+        PRIVATE weight: NUMBER
+        PRIVATE dimensions: TEXT
+
+    CONSTRUCTOR(packageID: NUMBER, packageWeight: NUMBER, packageDimensions: TEXT)
+        SET this.package_id TO packageID
+        SET this.dimensions TO packageDimensions
+
+        IF packageWeight GREATER THAN 0 THEN
+            SET this.weight TO packageWeight
+        ELSE
+            SET this.weight TO 0
+        END IF
+    END CONSTRUCTOR
+
+    METHODS
+        GET_WEIGHT()
+            RETURN this.weight
+        END METHOD
+END CLASS
+
+
+CLASS VEHICLE
+    ATTRIBUTES
+        PRIVATE licence_plate: TEXT
+        PRIVATE speed: NUMBER
+        PRIVATE engine: ENGINE
+        PRIVATE packages: LIST<PACKAGE>[]
+
+    CONSTRUCTOR(plate: TEXT, vehicleSpeed: NUMBER, vehicleEngine: ENGINE)
+        SET this.licence_plate TO plate
+        SET this.engine TO vehicleEngine
+        SET this.packages TO EMPTY LIST
+
+        IF vehicleSpeed GREATER THAN 0 THEN
+            SET this.speed TO vehicleSpeed
+        ELSE
+            SET this.speed TO 1
+        END IF
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_PACKAGE(package: PACKAGE)
+            ADD package TO this.packages
+            RETURN TRUE
+        END METHOD
+
+        CALCULATE_DELIVERY_TIME(distance: NUMBER)
+            DISPLAY "CALCULATE_DELIVERY_TIME must be overridden by child class"
+            RETURN 0
+        END METHOD
+
+        CALCULATE_FUEL_USAGE(distance: NUMBER)
+            RETURN distance / this.engine.GET_FUEL_EFFICIENCY()
+        END METHOD
+END CLASS
+
+
+CLASS VAN EXTENDS VEHICLE
+    CONSTRUCTOR(plate: TEXT, vehicleSpeed: NUMBER, vehicleEngine: ENGINE)
+        CALL SUPER(plate, vehicleSpeed, vehicleEngine)
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_DELIVERY_TIME(distance: NUMBER)
+            RETURN distance / this.speed
+        END METHOD
+END CLASS
+
+
+CLASS MOTORBIKE EXTENDS VEHICLE
+    ATTRIBUTES
+        PRIVATE small_packages_only: BOOLEAN
+
+    CONSTRUCTOR(plate: TEXT, vehicleSpeed: NUMBER, vehicleEngine: ENGINE)
+        CALL SUPER(plate, vehicleSpeed, vehicleEngine)
+        SET this.small_packages_only TO TRUE
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_PACKAGE(package: PACKAGE)
+            IF package.GET_WEIGHT() LESS THAN OR EQUAL TO 5 THEN
+                ADD package TO this.packages
+                DISPLAY "PACKAGE ADDED TO MOTORBIKE"
+                RETURN TRUE
+            ELSE
+                DISPLAY "PACKAGE TOO HEAVY FOR MOTORBIKE"
+                RETURN FALSE
+            END IF
+        END METHOD
+
+        CALCULATE_DELIVERY_TIME(distance: NUMBER)
+            RETURN distance / this.speed
+        END METHOD
+END CLASS
+
+
+CLASS TRUCK EXTENDS VEHICLE
+    CONSTRUCTOR(plate: TEXT, vehicleSpeed: NUMBER, vehicleEngine: ENGINE)
+        CALL SUPER(plate, vehicleSpeed, vehicleEngine)
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_DELIVERY_TIME(distance: NUMBER)
+            RETURN distance / this.speed
+        END METHOD
+END CLASS
+
+
+CLASS STOP
+    ATTRIBUTES
+        PRIVATE location: TEXT
+        PRIVATE package: PACKAGE
+
+    CONSTRUCTOR(stopLocation: TEXT, stopPackage: PACKAGE)
+        SET this.location TO stopLocation
+        SET this.package TO stopPackage
+    END CONSTRUCTOR
+END CLASS
+
+
+CLASS ROUTE
+    ATTRIBUTES
+        PRIVATE distance: NUMBER
+        PRIVATE stops: LIST<STOP>[]
+
+    CONSTRUCTOR(routeDistance: NUMBER)
+        SET this.distance TO routeDistance
+        SET this.stops TO EMPTY LIST
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_STOP(stop: STOP)
+            ADD stop TO this.stops
+        END METHOD
+
+        GET_DISTANCE()
+            RETURN this.distance
+        END METHOD
+END CLASS
+
+
+START
+    BEGIN
+        CREATE OBJECT engine1 OF ENGINE("Petrol", 15)
+
+        CREATE OBJECT bike1 OF MOTORBIKE("M123", 60, engine1)
+
+        CREATE OBJECT package1 OF PACKAGE(1, 3, "Small")
+        CREATE OBJECT package2 OF PACKAGE(2, 20, "Large")
+
+        CALL bike1.ADD_PACKAGE(package1)
+        CALL bike1.ADD_PACKAGE(package2)
+
+        DISPLAY bike1.CALCULATE_DELIVERY_TIME(30)
+        DISPLAY bike1.CALCULATE_FUEL_USAGE(30)
+    END
+STOP
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+TASK 299: Bank Cards
+
+CLASS CHIP
+    ATTRIBUTES
+        PRIVATE chip_id: NUMBER
+        PRIVATE encrypted: BOOLEAN
+
+    CONSTRUCTOR(chipID: NUMBER)
+        SET this.chip_id TO chipID
+        SET this.encrypted TO TRUE
+    END CONSTRUCTOR
+END CLASS
+
+
+CLASS CARD
+    ATTRIBUTES
+        PRIVATE card_number: TEXT
+        PRIVATE holder_name: TEXT
+        PRIVATE chip: CHIP
+        PRIVATE blocked: BOOLEAN
+
+    CONSTRUCTOR(cardNumber: TEXT, holderName: TEXT, cardChip: CHIP)
+        SET this.card_number TO cardNumber
+        SET this.holder_name TO holderName
+        SET this.chip TO cardChip
+        SET this.blocked TO FALSE
+    END CONSTRUCTOR
+
+    METHODS
+        BLOCK_CARD()
+            SET this.blocked TO TRUE
+        END METHOD
+
+        UNBLOCK_CARD()
+            SET this.blocked TO FALSE
+        END METHOD
+
+        IS_BLOCKED()
+            RETURN this.blocked
+        END METHOD
+
+        AUTHORISE_PURCHASE(amount: NUMBER)
+            DISPLAY "AUTHORISE_PURCHASE must be overridden by child class"
+            RETURN FALSE
+        END METHOD
+END CLASS
+
+
+CLASS DEBIT_CARD EXTENDS CARD
+    ATTRIBUTES
+        PRIVATE balance: NUMBER
+
+    CONSTRUCTOR(cardNumber: TEXT, holderName: TEXT, cardChip: CHIP, startBalance: NUMBER)
+        CALL SUPER(cardNumber, holderName, cardChip)
+
+        IF startBalance GREATER THAN OR EQUAL TO 0 THEN
+            SET this.balance TO startBalance
+        ELSE
+            SET this.balance TO 0
+        END IF
+    END CONSTRUCTOR
+
+    METHODS
+        AUTHORISE_PURCHASE(amount: NUMBER)
+            IF IS_BLOCKED() EQUALS TRUE THEN
+                RETURN FALSE
+            END IF
+
+            IF amount GREATER THAN 0 AND this.balance GREATER THAN OR EQUAL TO amount THEN
+                SET this.balance TO this.balance - amount
+                RETURN TRUE
+            ELSE
+                RETURN FALSE
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS CREDIT_CARD EXTENDS CARD
+    ATTRIBUTES
+        PRIVATE credit_limit: NUMBER
+        PRIVATE unpaid_purchases: LIST<NUMBER>[]
+
+    CONSTRUCTOR(cardNumber: TEXT, holderName: TEXT, cardChip: CHIP, limitValue: NUMBER)
+        CALL SUPER(cardNumber, holderName, cardChip)
+
+        SET this.credit_limit TO limitValue
+        SET this.unpaid_purchases TO EMPTY LIST
+    END CONSTRUCTOR
+
+    METHODS
+        GET_OUTSTANDING_BALANCE()
+            SET total TO 0
+
+            REPEAT FROM I = 0 TO SIZE OF this.unpaid_purchases - 1
+                SET total TO total + this.unpaid_purchases[I]
+            END REPEAT
+
+            RETURN total
+        END METHOD
+
+        AUTHORISE_PURCHASE(amount: NUMBER)
+            IF IS_BLOCKED() EQUALS TRUE THEN
+                RETURN FALSE
+            END IF
+
+            IF GET_OUTSTANDING_BALANCE() + amount LESS THAN OR EQUAL TO this.credit_limit THEN
+                ADD amount TO this.unpaid_purchases
+                RETURN TRUE
+            ELSE
+                RETURN FALSE
+            END IF
+        END METHOD
+
+        MAKE_PAYMENT(amount: NUMBER)
+            IF amount GREATER THAN 0 THEN
+                SET remaining TO amount
+
+                REPEAT FROM I = 0 TO SIZE OF this.unpaid_purchases - 1
+                    IF remaining GREATER THAN 0 THEN
+                        SET this.unpaid_purchases[I] TO this.unpaid_purchases[I] - remaining
+
+                        IF this.unpaid_purchases[I] LESS THAN 0 THEN
+                            SET remaining TO 0 - this.unpaid_purchases[I]
+                            SET this.unpaid_purchases[I] TO 0
+                        ELSE
+                            SET remaining TO 0
+                        END IF
+                    END IF
+                END REPEAT
+            END IF
+        END METHOD
+END CLASS
+
+
+START
+    BEGIN
+        CREATE OBJECT chip1 OF CHIP(101)
+
+        CREATE OBJECT debit1 OF DEBIT_CARD("11112222", "Mohammed", chip1, 100)
+
+        DISPLAY debit1.AUTHORISE_PURCHASE(30)
+
+        CREATE OBJECT chip2 OF CHIP(102)
+
+        CREATE OBJECT credit1 OF CREDIT_CARD("33334444", "Ali", chip2, 500)
+
+        DISPLAY credit1.AUTHORISE_PURCHASE(200)
+
+        DISPLAY credit1.GET_OUTSTANDING_BALANCE()
+
+        CALL credit1.MAKE_PAYMENT(50)
+
+        DISPLAY credit1.GET_OUTSTANDING_BALANCE()
+    END
+STOP
+_____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+TASK 300: Hospital Staff Scheduling
+
+CLASS SHIFT
+    ATTRIBUTES
+        PRIVATE shift_id: NUMBER
+        PRIVATE ward: WARD
+        PRIVATE start_time: NUMBER
+        PRIVATE end_time: NUMBER
+
+    CONSTRUCTOR(shiftID: NUMBER, shiftWard: WARD, startTime: NUMBER, endTime: NUMBER)
+        SET this.shift_id TO shiftID
+        SET this.ward TO shiftWard
+
+        IF startTime LESS THAN endTime THEN
+            SET this.start_time TO startTime
+            SET this.end_time TO endTime
+        ELSE
+            SET this.start_time TO 0
+            SET this.end_time TO 0
+        END IF
+    END CONSTRUCTOR
+
+    METHODS
+        GET_START_TIME()
+            RETURN this.start_time
+        END METHOD
+
+        GET_END_TIME()
+            RETURN this.end_time
+        END METHOD
+
+        CALCULATE_HOURS()
+            RETURN this.end_time - this.start_time
+        END METHOD
+
+        CHECK_OVERLAP(otherShift: SHIFT)
+            IF this.start_time LESS THAN otherShift.GET_END_TIME() AND this.end_time GREATER THAN otherShift.GET_START_TIME() THEN
+                RETURN TRUE
+            ELSE
+                RETURN FALSE
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS STAFF_MEMBER
+    ATTRIBUTES
+        PRIVATE employee_id: NUMBER
+        PRIVATE name: TEXT
+        PRIVATE shifts: LIST<SHIFT>[]
+
+    CONSTRUCTOR(employeeID: NUMBER, employeeName: TEXT)
+        SET this.employee_id TO employeeID
+        SET this.name TO employeeName
+        SET this.shifts TO EMPTY LIST
+    END CONSTRUCTOR
+
+    METHODS
+        ASSIGN_SHIFT(newShift: SHIFT)
+            REPEAT FROM I = 0 TO SIZE OF this.shifts - 1
+                IF newShift.CHECK_OVERLAP(this.shifts[I]) EQUALS TRUE THEN
+                    DISPLAY "SHIFT CONFLICT"
+                    RETURN FALSE
+                END IF
+            END REPEAT
+
+            ADD newShift TO this.shifts
+            DISPLAY "SHIFT ASSIGNED"
+            RETURN TRUE
+        END METHOD
+
+        CALCULATE_SHIFT_PAY(shift: SHIFT)
+            DISPLAY "CALCULATE_SHIFT_PAY must be overridden by child class"
+            RETURN 0
+        END METHOD
+END CLASS
+
+
+CLASS DOCTOR EXTENDS STAFF_MEMBER
+    ATTRIBUTES
+        PRIVATE hourly_rate: NUMBER
+
+    CONSTRUCTOR(employeeID: NUMBER, employeeName: TEXT, rate: NUMBER)
+        CALL SUPER(employeeID, employeeName)
+        SET this.hourly_rate TO rate
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_SHIFT_PAY(shift: SHIFT)
+            RETURN shift.CALCULATE_HOURS() * this.hourly_rate
+        END METHOD
+END CLASS
+
+
+CLASS SURGEON EXTENDS DOCTOR
+    ATTRIBUTES
+        PRIVATE surgery_bonus: NUMBER
+
+    CONSTRUCTOR(employeeID: NUMBER, employeeName: TEXT, rate: NUMBER, bonus: NUMBER)
+        CALL SUPER(employeeID, employeeName, rate)
+        SET this.surgery_bonus TO bonus
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_SHIFT_PAY(shift: SHIFT)
+            RETURN SUPER.CALCULATE_SHIFT_PAY(shift) + this.surgery_bonus
+        END METHOD
+END CLASS
+
+
+CLASS NURSE EXTENDS STAFF_MEMBER
+    ATTRIBUTES
+        PRIVATE hourly_rate: NUMBER
+
+    CONSTRUCTOR(employeeID: NUMBER, employeeName: TEXT, rate: NUMBER)
+        CALL SUPER(employeeID, employeeName)
+        SET this.hourly_rate TO rate
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_SHIFT_PAY(shift: SHIFT)
+            RETURN shift.CALCULATE_HOURS() * this.hourly_rate
+        END METHOD
+END CLASS
+
+
+CLASS WARD
+    ATTRIBUTES
+        PRIVATE ward_id: NUMBER
+        PRIVATE ward_name: TEXT
+        PRIVATE shifts: LIST<SHIFT>[]
+
+    CONSTRUCTOR(wardID: NUMBER, wardName: TEXT)
+        SET this.ward_id TO wardID
+        SET this.ward_name TO wardName
+        SET this.shifts TO EMPTY LIST
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_SHIFT(newShift: SHIFT)
+            ADD newShift TO this.shifts
+        END METHOD
+END CLASS
+
+
+START
+    BEGIN
+        CREATE OBJECT ward1 OF WARD(1, "Emergency")
+
+        CREATE OBJECT shift1 OF SHIFT(101, ward1, 8, 16)
+        CREATE OBJECT shift2 OF SHIFT(102, ward1, 14, 20)
+
+        CREATE OBJECT doctor1 OF DOCTOR(1, "Dr Ahmed", 20)
+        CREATE OBJECT surgeon1 OF SURGEON(2, "Dr Ali", 30, 100)
+        CREATE OBJECT nurse1 OF NURSE(3, "Nurse Sara", 10)
+
+        CALL doctor1.ASSIGN_SHIFT(shift1)
+        CALL doctor1.ASSIGN_SHIFT(shift2)
+
+        DISPLAY surgeon1.CALCULATE_SHIFT_PAY(shift1)
+    END
+STOP
+
+____________________________________________________________________________________________________________________________________________________________________________________
+
+TASK 301: E-book Reader App
+
+CLASS COVER_IMAGE
+    ATTRIBUTES
+        PRIVATE image_file: TEXT
+
+    CONSTRUCTOR(fileName: TEXT)
+        SET this.image_file TO fileName
+    END CONSTRUCTOR
+END CLASS
+
+
+CLASS PUBLICATION
+    ATTRIBUTES
+        PRIVATE title: TEXT
+        PRIVATE author: TEXT
+        PRIVATE cover_image: COVER_IMAGE
+
+    CONSTRUCTOR(pubTitle: TEXT, pubAuthor: TEXT, cover: COVER_IMAGE)
+        SET this.title TO pubTitle
+        SET this.author TO pubAuthor
+        SET this.cover_image TO cover
+    END CONSTRUCTOR
+
+    METHODS
+        GET_PROGRESS()
+            DISPLAY "GET_PROGRESS must be overridden by child class"
+            RETURN 0
+        END METHOD
+END CLASS
+
+
+CLASS NOVEL EXTENDS PUBLICATION
+    ATTRIBUTES
+        PRIVATE total_pages: NUMBER
+        PRIVATE current_page: NUMBER
+
+    CONSTRUCTOR(pubTitle: TEXT, pubAuthor: TEXT, cover: COVER_IMAGE, pages: NUMBER)
+        CALL SUPER(pubTitle, pubAuthor, cover)
+        SET this.total_pages TO pages
+        SET this.current_page TO 0
+    END CONSTRUCTOR
+
+    METHODS
+        SET_CURRENT_PAGE(page: NUMBER)
+            IF page GREATER THAN OR EQUAL TO 0 AND page LESS THAN OR EQUAL TO this.total_pages THEN
+                SET this.current_page TO page
+            END IF
+        END METHOD
+
+        GET_PROGRESS()
+            RETURN (this.current_page / this.total_pages) * 100
+        END METHOD
+END CLASS
+
+
+CLASS MAGAZINE EXTENDS PUBLICATION
+    ATTRIBUTES
+        PRIVATE total_articles: NUMBER
+        PRIVATE opened_articles: NUMBER
+
+    CONSTRUCTOR(pubTitle: TEXT, pubAuthor: TEXT, cover: COVER_IMAGE, articles: NUMBER)
+        CALL SUPER(pubTitle, pubAuthor, cover)
+        SET this.total_articles TO articles
+        SET this.opened_articles TO 0
+    END CONSTRUCTOR
+
+    METHODS
+        OPEN_ARTICLE()
+            IF this.opened_articles LESS THAN this.total_articles THEN
+                SET this.opened_articles TO this.opened_articles + 1
+            END IF
+        END METHOD
+
+        GET_PROGRESS()
+            RETURN (this.opened_articles / this.total_articles) * 100
+        END METHOD
+END CLASS
+
+
+CLASS AUDIOBOOK EXTENDS PUBLICATION
+    ATTRIBUTES
+        PRIVATE total_listening_time: NUMBER
+        PRIVATE listened_time: NUMBER
+
+    CONSTRUCTOR(pubTitle: TEXT, pubAuthor: TEXT, cover: COVER_IMAGE, totalTime: NUMBER)
+        CALL SUPER(pubTitle, pubAuthor, cover)
+        SET this.total_listening_time TO totalTime
+        SET this.listened_time TO 0
+    END CONSTRUCTOR
+
+    METHODS
+        SET_LISTENED_TIME(timeValue: NUMBER)
+            IF timeValue GREATER THAN OR EQUAL TO 0 AND timeValue LESS THAN OR EQUAL TO this.total_listening_time THEN
+                SET this.listened_time TO timeValue
+            END IF
+        END METHOD
+
+        GET_PROGRESS()
+            RETURN (this.listened_time / this.total_listening_time) * 100
+        END METHOD
+END CLASS
+
+
+CLASS LIBRARY
+    ATTRIBUTES
+        PRIVATE publications: LIST<PUBLICATION>[]
+
+    CONSTRUCTOR()
+        SET this.publications TO EMPTY LIST
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_PUBLICATION(pub: PUBLICATION)
+            ADD pub TO this.publications
+        END METHOD
+
+        VIEW_PROGRESS()
+            REPEAT FROM I = 0 TO SIZE OF this.publications - 1
+                DISPLAY this.publications[I].GET_PROGRESS()
+            END REPEAT
+        END METHOD
+END CLASS
+
+
+START
+    BEGIN
+        CREATE OBJECT cover1 OF COVER_IMAGE("novel.jpg")
+        CREATE OBJECT novel1 OF NOVEL("Story Book", "Author A", cover1, 200)
+
+        CALL novel1.SET_CURRENT_PAGE(50)
+
+        CREATE OBJECT library1 OF LIBRARY()
+
+        CALL library1.ADD_PUBLICATION(novel1)
+
+        CALL library1.VIEW_PROGRESS()
+    END
+STOP
+
+____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+TASK 302: Smart Home Devices
+
+CLASS DEVICE
+    ATTRIBUTES
+        PRIVATE device_name: TEXT
+        PRIVATE status: TEXT
+
+    CONSTRUCTOR(nameValue: TEXT)
+        SET this.device_name TO nameValue
+        SET this.status TO "OFF"
+    END CONSTRUCTOR
+
+    METHODS
+        TURN_ON()
+            SET this.status TO "ON"
+        END METHOD
+
+        TURN_OFF()
+            SET this.status TO "OFF"
+        END METHOD
+
+        GET_STATUS()
+            RETURN this.status
+        END METHOD
+
+        GET_POWER_USAGE()
+            DISPLAY "GET_POWER_USAGE must be overridden by child class"
+            RETURN 0
+        END METHOD
+END CLASS
+
+
+CLASS SMART_LIGHT EXTENDS DEVICE
+    ATTRIBUTES
+        PRIVATE brightness: NUMBER
+
+    CONSTRUCTOR(nameValue: TEXT, brightnessValue: NUMBER)
+        CALL SUPER(nameValue)
+
+        IF brightnessValue GREATER THAN OR EQUAL TO 0 THEN
+            SET this.brightness TO brightnessValue
+        ELSE
+            SET this.brightness TO 0
+        END IF
+    END CONSTRUCTOR
+
+    METHODS
+        SET_BRIGHTNESS(value: NUMBER)
+            IF value GREATER THAN OR EQUAL TO 0 THEN
+                SET this.brightness TO value
+            END IF
+        END METHOD
+
+        GET_POWER_USAGE()
+            IF GET_STATUS() EQUALS "ON" THEN
+                RETURN this.brightness * 0.5
+            ELSE
+                RETURN 0
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS SMART_THERMOSTAT EXTENDS DEVICE
+    ATTRIBUTES
+        PRIVATE heating_level: NUMBER
+
+    CONSTRUCTOR(nameValue: TEXT, heating: NUMBER)
+        CALL SUPER(nameValue)
+        SET this.heating_level TO heating
+    END CONSTRUCTOR
+
+    METHODS
+        GET_POWER_USAGE()
+            IF GET_STATUS() EQUALS "ON" THEN
+                RETURN this.heating_level * 2
+            ELSE
+                RETURN 0
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS STORAGE_UNIT
+    ATTRIBUTES
+        PRIVATE capacity: NUMBER
+        PRIVATE used_space: NUMBER
+
+    CONSTRUCTOR(storageCapacity: NUMBER)
+        SET this.capacity TO storageCapacity
+        SET this.used_space TO 0
+    END CONSTRUCTOR
+
+    METHODS
+        HAS_SPACE(amount: NUMBER)
+            IF this.used_space + amount LESS THAN OR EQUAL TO this.capacity THEN
+                RETURN TRUE
+            ELSE
+                RETURN FALSE
+            END IF
+        END METHOD
+
+        ADD_DATA(amount: NUMBER)
+            IF HAS_SPACE(amount) EQUALS TRUE THEN
+                SET this.used_space TO this.used_space + amount
+                RETURN TRUE
+            ELSE
+                DISPLAY "NO STORAGE SPACE"
+                RETURN FALSE
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS SMART_CAMERA EXTENDS DEVICE
+    ATTRIBUTES
+        PRIVATE storage: STORAGE_UNIT
+        PRIVATE is_recording: BOOLEAN
+
+    CONSTRUCTOR(nameValue: TEXT, cameraStorage: STORAGE_UNIT)
+        CALL SUPER(nameValue)
+        SET this.storage TO cameraStorage
+        SET this.is_recording TO FALSE
+    END CONSTRUCTOR
+
+    METHODS
+        START_RECORDING(dataAmount: NUMBER)
+            IF GET_STATUS() EQUALS "ON" THEN
+                IF this.storage.ADD_DATA(dataAmount) EQUALS TRUE THEN
+                    SET this.is_recording TO TRUE
+                    DISPLAY "RECORDING STARTED"
+                END IF
+            ELSE
+                DISPLAY "CAMERA IS OFF"
+            END IF
+        END METHOD
+
+        STOP_RECORDING()
+            SET this.is_recording TO FALSE
+        END METHOD
+
+        GET_POWER_USAGE()
+            IF GET_STATUS() EQUALS "ON" THEN
+                IF this.is_recording EQUALS TRUE THEN
+                    RETURN 10
+                ELSE
+                    RETURN 2
+                END IF
+            ELSE
+                RETURN 0
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS ROOM
+    ATTRIBUTES
+        PRIVATE room_name: TEXT
+        PRIVATE devices: LIST<DEVICE>[]
+
+    CONSTRUCTOR(nameValue: TEXT)
+        SET this.room_name TO nameValue
+        SET this.devices TO EMPTY LIST
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_DEVICE(device: DEVICE)
+            ADD device TO this.devices
+        END METHOD
+
+        CALCULATE_TOTAL_POWER_USAGE()
+            SET total TO 0
+
+            REPEAT FROM I = 0 TO SIZE OF this.devices - 1
+                SET total TO total + this.devices[I].GET_POWER_USAGE()
+            END REPEAT
+
+            RETURN total
+        END METHOD
+END CLASS
+
+
+START
+    BEGIN
+        CREATE OBJECT room1 OF ROOM("Living Room")
+
+        CREATE OBJECT light1 OF SMART_LIGHT("Main Light", 80)
+        CREATE OBJECT thermostat1 OF SMART_THERMOSTAT("Thermostat", 5)
+        CREATE OBJECT storage1 OF STORAGE_UNIT(100)
+        CREATE OBJECT camera1 OF SMART_CAMERA("Camera", storage1)
+
+        CALL light1.TURN_ON()
+        CALL thermostat1.TURN_ON()
+        CALL camera1.TURN_ON()
+
+        CALL camera1.START_RECORDING(20)
+
+        CALL room1.ADD_DEVICE(light1)
+        CALL room1.ADD_DEVICE(thermostat1)
+        CALL room1.ADD_DEVICE(camera1)
+
+        DISPLAY room1.CALCULATE_TOTAL_POWER_USAGE()
+    END
+STOP
+
+_)___________________________________________________________________________________________________________________________________________________
