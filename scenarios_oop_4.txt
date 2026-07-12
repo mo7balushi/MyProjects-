@@ -1,0 +1,684 @@
+TASK 303: Musical Instruments Store
+CLASS INSTRUMENT
+    ATTRIBUTES
+        PRIVATE brand: TEXT
+        PRIVATE price: NUMBER
+    CONSTRUCTOR(instrumentBrand: TEXT, instrumentPrice: NUMBER)
+        SET brand TO instrumentBrand
+        IF instrumentPrice GREATER THAN 0 THEN
+            SET price TO instrumentPrice
+        ELSE
+            SET price TO 0
+            DISPLAY "INVALID PRICE"
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        GET_BRAND()
+            RETURN brand
+        END METHOD
+        GET_PRICE()
+            RETURN price
+        END METHOD
+        DESCRIBE_PLAY_STYLE()
+            RETURN "GENERAL INSTRUMENT PLAY STYLE"
+        END METHOD
+END CLASS
+CLASS GUITAR INHERITS INSTRUMENT
+    ATTRIBUTES
+        PRIVATE number_of_strings: NUMBER
+    CONSTRUCTOR(guitarBrand: TEXT, guitarPrice: NUMBER, strings: NUMBER)
+        CALL SUPER(guitarBrand, guitarPrice)
+        IF strings GREATER THAN 0 THEN
+            SET number_of_strings TO strings
+        ELSE
+            SET number_of_strings TO 6
+            DISPLAY "INVALID STRINGS, DEFAULT 6 USED"
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        DESCRIBE_PLAY_STYLE()
+            RETURN "Guitar is strummed or plucked"
+        END METHOD
+END CLASS
+CLASS DRUM_KIT INHERITS INSTRUMENT
+    ATTRIBUTES
+        PRIVATE number_of_pieces: NUMBER
+    CONSTRUCTOR(drumBrand: TEXT, drumPrice: NUMBER, pieces: NUMBER)
+        CALL SUPER(drumBrand, drumPrice)
+        IF pieces GREATER THAN 0 THEN
+            SET number_of_pieces TO pieces
+        ELSE
+            SET number_of_pieces TO 5
+            DISPLAY "INVALID PIECES, DEFAULT 5 USED"
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        DESCRIBE_PLAY_STYLE()
+            RETURN "Drum kit is struck"
+        END METHOD
+END CLASS
+CLASS KEYBOARD INHERITS INSTRUMENT
+    ATTRIBUTES
+        PRIVATE number_of_keys: NUMBER
+    CONSTRUCTOR(keyboardBrand: TEXT, keyboardPrice: NUMBER, keys: NUMBER)
+        CALL SUPER(keyboardBrand, keyboardPrice)
+        IF keys GREATER THAN 0 THEN
+            SET number_of_keys TO keys
+        ELSE
+            SET number_of_keys TO 61
+            DISPLAY "INVALID KEYS, DEFAULT 61 USED"
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        DESCRIBE_PLAY_STYLE()
+            RETURN "Keyboard is pressed"
+        END METHOD
+END CLASS
+CLASS MUSIC_STORE
+    ATTRIBUTES
+        PRIVATE instruments: LIST<INSTRUMENT>[]
+    CONSTRUCTOR()
+        SET instruments TO EMPTY LIST
+    END CONSTRUCTOR
+    METHODS
+        ADD_INSTRUMENT(newInstrument: INSTRUMENT)
+            ADD newInstrument TO instruments
+            DISPLAY "INSTRUMENT ADDED TO STORE"
+        END METHOD
+        VIEW_STOCK()
+            REPEAT FROM I = 0 TO SIZE OF instruments - 1
+                DISPLAY instruments[I].GET_BRAND()
+                DISPLAY instruments[I].GET_PRICE()
+                DISPLAY instruments[I].DESCRIBE_PLAY_STYLE()
+            END REPEAT
+        END METHOD
+        CALCULATE_TOTAL_STOCK_VALUE()
+            SET total TO 0
+            REPEAT FROM I = 0 TO SIZE OF instruments - 1
+                SET total TO total + instruments[I].GET_PRICE()
+            END REPEAT
+            RETURN total
+        END METHOD
+END CLASS
+START
+    BEGIN
+        CREATE OBJECT store1 OF MUSIC_STORE()
+        CREATE OBJECT guitar1 OF GUITAR("Yamaha", 120, 6)
+        CREATE OBJECT drum1 OF DRUM_KIT("Pearl", 300, 5)
+        CREATE OBJECT keyboard1 OF KEYBOARD("Casio", 180, 61)
+        CALL store1.ADD_INSTRUMENT(guitar1)
+        CALL store1.ADD_INSTRUMENT(drum1)
+        CALL store1.ADD_INSTRUMENT(keyboard1)
+        CALL store1.VIEW_STOCK()
+        DISPLAY store1.CALCULATE_TOTAL_STOCK_VALUE()
+    END
+STOP
+_____________________________________________________________________________________________________________________________________________________
+
+TASK 304: Fitness App Workouts
+CLASS WORKOUT
+    ATTRIBUTES
+        PRIVATE workout_date: TEXT
+        PRIVATE duration: NUMBER
+    CONSRUCTOR(dateValue: TEXT, workoutDuration: NUMBER)
+        SET workout_date TO dateValue
+        IF workoutDuration GREATER THAN 0 THEN
+            SET duration TO workoutDuration
+        ELSE
+            SET duration TO 0
+            DISPLAY "INVALID DURATION"
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        GET_DATE()
+            RETURN workout_date
+        END METHOD
+        GET_DURATION()
+            RETURN duration
+        END METHOD
+        CALCULATE_CALORIES()
+            RETURN 0
+        END METHOD
+END CLASS
+CLASS RUNNING_WORKOUT INHERITS WORKOUT
+    ATTRIBUTES
+        PRIVATE distance: NUMBER
+        PRIVATE pace: NUMBER
+    CONSTRUCTOR(dateValue: TEXT, workoutDuration: NUMBER, runDistance: NUMBER, runPace: NUMBER)
+        CALL SUPER(dateValue, workoutDuration)
+        IF runDistance GREATER THAN 0 THEN
+            SET distance TO runDistance
+        ELSE
+            SET distance TO 0
+        END IF
+        IF runPace GREATER THAN 0 THEN
+            SET pace TO runPace
+        ELSE
+            SET pace TO 1
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        CALCULATE_CALORIES()
+            RETURN distance * pace * 10
+        END METHOD
+END CLASS
+CLASS CYCLING_WORKOUT INHERITS WORKOUT
+    ATTRIBUTES
+        PRIVATE distance: NUMBER
+        PRIVATE resistance_level: NUMBER
+    CONSTRUCTOR(dateValue: TEXT, workoutDuration: NUMBER, cycleDistance: NUMBER, resistance: NUMBER)
+        CALL SUPER(dateValue, workoutDuration)
+        IF cycleDistance GREATER THAN 0 THEN
+            SET distance TO cycleDistance
+        ELSE
+            SET distance TO 0
+        END IF
+        IF resistance GREATER THAN 0 THEN
+            SET resistance_level TO resistance
+        ELSE
+            SET resistance_level TO 1
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        CALCULATE_CALORIES()
+            RETURN distance * resistance_level * 8
+        END METHOD
+END CLASS
+CLASS WEIGHT_TRAINING_WORKOUT INHERITS WORKOUT
+    ATTRIBUTES
+        PRIVATE sets: NUMBER
+        PRIVATE reps: NUMBER
+    CONSTRUCTOR(dateValue: TEXT, workoutDuration: NUMBER, totalSets: NUMBER, totalReps: NUMBER)
+        CALL SUPER(dateValue, workoutDuration)
+        IF totalSets GREATER THAN 0 THEN
+            SET sets TO totalSets
+        ELSE
+            SET sets TO 0
+        END IF
+        IF totalReps GREATER THAN 0 THEN
+            SET reps TO totalReps
+        ELSE
+            SET reps TO 0
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        CALCULATE_CALORIES()
+            RETURN sets * reps * 2
+        END METHOD
+END CLASS
+CLASS FITNESS_LOG
+    ATTRIBUTES
+        PRIVATE workouts: LIST<WORKOUT>[]
+    CONSTRUCTOR()
+        SET workouts TO EMPTY LIST
+    END CONSTRUCTOR
+    METHODS
+        ADD_WORKOUT(newWorkout: WORKOUT)
+            ADD newWorkout TO workouts
+            DISPLAY "WORKOUT ADDED TO FITNESS LOG"
+        END METHOD
+        CALCULATE_TOTAL_CALORIES()
+            SET total TO 0
+            REPEAT FROM I = 0 TO SIZE OF workouts - 1
+                SET total TO total + workouts[I].CALCULATE_CALORIES()
+            END REPEAT
+            RETURN total
+        END METHOD
+        VIEW_WORKOUTS()
+            REPEAT FROM I = 0 TO SIZE OF workouts - 1
+                DISPLAY workouts[I].GET_DATE()
+                DISPLAY workouts[I].GET_DURATION()
+                DISPLAY workouts[I].CALCULATE_CALORIES()
+            END REPEAT
+        END METHOD
+END CLASS
+START
+    BEGIN
+        CREATE OBJECT log1 OF FITNESS_LOG()
+        CREATE OBJECT run1 OF RUNNING_WORKOUT("2026-07-07", 30, 5, 6)
+        CREATE OBJECT cycle1 OF CYCLING_WORKOUT("2026-07-08", 45, 10, 4)
+        CREATE OBJECT weight1 OF WEIGHT_TRAINING_WORKOUT("2026-07-09", 60, 4, 12)
+        CALL log1.ADD_WORKOUT(run1)
+        CALL log1.ADD_WORKOUT(cycle1)
+        CALL log1.ADD_WORKOUT(weight1)
+        CALL log1.VIEW_WORKOUTS()
+        DISPLAY log1.CALCULATE_TOTAL_CALORIES()
+    END
+STOP
+
+__________________________________________________________________________________________________________________________________________________________
+
+TASK 305: Video Game Characters
+CLASS ITEM
+    ATTRIBUTES
+        PRIVATE item_id: NUMBER
+        PRIVATE name: TEXT
+    CONSTRUCTOR(itemId: NUMBER, itemName: TEXT)
+        SET item_id TO itemId
+        SET name TO itemName
+    END CONSTRUCTOR
+    METHODS
+        GET_NAME()
+            RETURN name
+        END METHOD
+END CLASS
+CLASS INVENTORY
+    ATTRIBUTES
+        PRIVATE items: LIST<ITEM>[]
+    CONSTRUCTOR()
+        SET items TO EMPTY LIST
+    END CONSTRUCTOR
+    METHODS
+        ADD_ITEM(newItem: ITEM)
+            ADD newItem TO items
+            DISPLAY "ITEM ADDED TO INVENTORY"
+        END METHOD
+        VIEW_ITEMS()
+            REPEAT FROM I = 0 TO SIZE OF items - 1
+                DISPLAY items[I].GET_NAME()
+            END REPEAT
+        END METHOD
+        GET_TOTAL_ITEMS()
+            RETURN SIZE OF items
+        END METHOD
+END CLASS
+CLASS CHARACTER
+    ATTRIBUTES
+        PRIVATE name: TEXT
+        PRIVATE health: NUMBER
+        PRIVATE inventory: INVENTORY
+    CONSTRUCTOR(characterName: TEXT, characterHealth: NUMBER)
+        SET name TO characterName
+        IF characterHealth GREATER THAN 0 THEN
+            SET health TO characterHealth
+        ELSE
+            SET health TO 100
+            DISPLAY "INVALID HEALTH, DEFAULT 100 USED"
+        END IF
+        CREATE OBJECT inventoryObject OF INVENTORY()
+        SET inventory TO inventoryObject
+    END CONSTRUCTOR
+    METHODS
+        GET_NAME()
+            RETURN name
+        END METHOD
+        GET_HEALTH()
+            RETURN health
+        END METHOD
+        GET_INVENTORY()
+            RETURN inventory
+        END METHOD
+        ATTACK()
+            RETURN "GENERAL CHARACTER ATTACK"
+        END METHOD
+END CLASS
+CLASS WARRIOR INHERITS CHARACTER
+    ATTRIBUTES
+        PRIVATE melee_strength: NUMBER
+        PRIVATE armor_type: TEXT
+    CONSTRUCTOR(warriorName: TEXT, warriorHealth: NUMBER, strength: NUMBER, armor: TEXT)
+        CALL SUPER(warriorName, warriorHealth)
+        SET melee_strength TO strength
+        SET armor_type TO armor
+    END CONSTRUCTOR
+    METHODS
+        ATTACK()
+            RETURN "Warrior attacks using melee strength"
+        END METHOD
+END CLASS
+CLASS MAGE INHERITS CHARACTER
+    ATTRIBUTES
+        PRIVATE mana_pool: NUMBER
+        PRIVATE spell_power: NUMBER
+    CONSTRUCTOR(mageName: TEXT, mageHealth: NUMBER, mana: NUMBER, power: NUMBER)
+        CALL SUPER(mageName, mageHealth)
+        IF mana GREATER THAN 0 THEN
+            SET mana_pool TO mana
+        ELSE
+            SET mana_pool TO 0
+        END IF
+        SET spell_power TO power
+    END CONSTRUCTOR
+    METHODS
+        ATTACK()
+            IF mana_pool GREATER THAN OR EQUAL TO 10 THEN
+                SET mana_pool TO mana_pool - 10
+                RETURN "Mage casts a magic spell"
+            ELSE
+                RETURN "Mage does not have enough mana"
+            END IF
+        END METHOD
+END CLASS
+CLASS ARCHER INHERITS CHARACTER
+    ATTRIBUTES
+        PRIVATE arrow_supply: NUMBER
+    CONSTRUCTOR(archerName: TEXT, archerHealth: NUMBER, arrows: NUMBER)
+        CALL SUPER(archerName, archerHealth)
+        IF arrows GREATER THAN 0 THEN
+            SET arrow_supply TO arrows
+        ELSE
+            SET arrow_supply TO 0
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        ATTACK()
+            IF arrow_supply GREATER THAN 0 THEN
+                SET arrow_supply TO arrow_supply - 1
+                RETURN "Archer attacks using arrows"
+            ELSE
+                RETURN "Archer has no arrows left"
+            END IF
+        END METHOD
+        RESTOCK_ARROWS(amount: NUMBER)
+            IF amount GREATER THAN 0 THEN
+                SET arrow_supply TO arrow_supply + amount
+                DISPLAY "ARROWS RESTOCKED"
+            ELSE
+                DISPLAY "INVALID ARROW AMOUNT"
+            END IF
+        END METHOD
+END CLASS
+START
+    BEGIN
+        CREATE OBJECT warrior1 OF WARRIOR("Omar", 100, 80, "Heavy Armor")
+        CREATE OBJECT mage1 OF MAGE("Salim", 80, 50, 90)
+        CREATE OBJECT archer1 OF ARCHER("Ali", 90, 3)
+        CREATE OBJECT sword1 OF ITEM(1, "Sword")
+        CREATE OBJECT potion1 OF ITEM(2, "Health Potion")
+        CALL warrior1.GET_INVENTORY().ADD_ITEM(sword1)
+        CALL mage1.GET_INVENTORY().ADD_ITEM(potion1)
+        DISPLAY warrior1.ATTACK()
+        DISPLAY mage1.ATTACK()
+        DISPLAY archer1.ATTACK()
+        CALL warrior1.GET_INVENTORY().VIEW_ITEMS()          
+    END
+STOP
+__________________________________________________________________________________________________________________________________________________________
+ 
+Task 306: Utility Billing System   
+
+START 
+   BEGAIN 
+    CLASS METER_READING
+      ATTRIBUTES
+        PRIVATE start_reading: NUMBER
+        PRIVATE end_reading: NUMBER     
+        CONSTRUCTOR(startValue: NUMBER, endValue: NUMBER)
+        IF endValue GREATER THAN OR EQUAL TO startValue THEN
+            SET start_reading TO startValue
+            SET end_reading TO endValue
+        ELSE
+            SET start_reading TO 0
+            SET end_reading TO 0
+            DISPLAY "INVALID METER READING"
+        END IF
+       END CONSTRUCTOR  
+       METHODS
+        CALCULATE_CONSUMPTION()
+            RETURN end_reading - start_reading
+        END METHOD
+     END CLASS
+
+  CLASS BILL
+    ATTRIBUTES
+        PRIVATE billing_period: TEXT
+        PRIVATE due_date: TEXT
+        PRIVATE meter_reading: METER_READING
+
+    CONSTRUCTOR(period: TEXT, dueDate: TEXT, reading: METER_READING)
+        SET billing_period TO period
+        SET due_date TO dueDate
+        SET meter_reading TO reading
+    END CONSTRUCTOR
+    METHODS
+        GET_BILLING_PERIOD()
+            RETURN billing_period
+        END METHOD
+        GET_METER_READING()
+            RETURN meter_reading
+        END METHOD
+        CALCULATE_AMOUNT_OWED()
+            RETURN 0
+        END METHOD
+    END CLASS
+    CLASS ELECTRICITY_BILL INHERITS BILL
+    ATTRIBUTES
+        PRIVATE day_rate: NUMBER
+        PRIVATE night_rate: NUMBER
+        PRIVATE day_units: NUMBER
+        PRIVATE night_units: NUMBER
+
+    CONSTRUCTOR(period: TEXT, dueDate: TEXT, reading: METER_READING, dayRate: NUMBER, nightRate: NUMBER, dayUnitsValue: NUMBER, nightUnitsValue: NUMBER)
+        CALL SUPER(period, dueDate, reading)
+
+        SET day_rate TO dayRate
+        SET night_rate TO nightRate
+        SET day_units TO dayUnitsValue
+        SET night_units TO nightUnitsValue
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_AMOUNT_OWED()
+            RETURN (day_units * day_rate) + (night_units * night_rate)
+        END METHOD
+END CLASS
+
+CLASS WATER_BILL INHERITS BILL
+    ATTRIBUTES
+        PRIVATE flat_rate: NUMBER
+        PRIVATE standing_charge: NUMBER
+
+    CONSTRUCTOR(period: TEXT, dueDate: TEXT, reading: METER_READING, rate: NUMBER, charge: NUMBER)
+        CALL SUPER(period, dueDate, reading)
+
+        SET flat_rate TO rate
+        SET standing_charge TO charge
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_AMOUNT_OWED()
+            RETURN GET_METER_READING().CALCULATE_CONSUMPTION() * flat_rate + standing_charge
+        END METHOD
+END CLASS
+
+   END 
+STOP 
+
+
+_______________________________________________________________------------------------------------------------
+TASK 307: Ride-Sharing Vehicle Tiers
+CLASS WAYPOINT
+    ATTRIBUTES
+        PRIVATE location_name: TEXT
+    CONSTRUCTOR(locationName: TEXT)
+        SET location_name TO locationName
+    END CONSTRUCTOR
+    METHODS
+        GET_LOCATION_NAME()
+            RETURN location_name
+        END METHOD
+END CLASS
+CLASS ROUTE
+    ATTRIBUTES
+        PRIVATE waypoints: LIST<WAYPOINT>[]
+    CONSTRUCTOR()
+        SET waypoints TO EMPTY LIST
+    END CONSTRUCTOR
+    METHODS
+        ADD_WAYPOINT(newWaypoint: WAYPOINT)
+            ADD newWaypoint TO waypoints
+            DISPLAY "WAYPOINT ADDED"
+        END METHOD
+        GET_WAYPOINTS()
+            RETURN waypoints
+        END METHOD
+END CLASS
+CLASS RIDE
+    ATTRIBUTES
+        PRIVATE pickup_location: TEXT
+        PRIVATE dropoff_location: TEXT
+        PRIVATE route: ROUTE
+        PRIVATE distance: NUMBER
+    CONSTRUCTOR(pickup: TEXT, dropoff: TEXT, rideRoute: ROUTE, rideDistance: NUMBER)
+        SET pickup_location TO pickup
+        SET dropoff_location TO dropoff
+        SET route TO rideRoute
+        IF rideDistance GREATER THAN 0 THEN
+            SET distance TO rideDistance
+        ELSE
+            SET distance TO 0
+            DISPLAY "INVALID DISTANCE"
+        END IF
+    END CONSTRUCTOR
+    METHDS
+        GET_DISTANCE()
+            RETURN distance
+        END METHOD
+        CALCULATE_FARE()
+            RETURN 0
+        END METHOD
+END CLASS
+CLASS STANDARD_RIDE INHERITS RIDE
+    ATTRIBUTES
+        PRIVATE rate_per_km: NUMBER
+    CONSTRUCTOR(pickup: TEXT, dropoff: TEXT, rideRoute: ROUTE, rideDistance: NUMBER, rate: NUMBER)
+        CALL SUPER(pickup, dropoff, rideRoute, rideDistance)
+
+        IF rate GREATER THAN 0 THEN
+            SET rate_per_km TO rate
+        ELSE
+            SET rate_per_km TO 0
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        CALCULATE_FARE()
+            RETURN GET_DISTANCE() * rate_per_km
+        END METHOD
+END ClAS
+CLAS SHARED_RIDE INHERITS STANDARD_RIDE
+    ATTRIBUTES
+        PRIVATE passenger_count: NUMBER
+    CONSTRUCTOR(pickup: TEXT, dropoff: TEXT, rideRoute: ROUTE, rideDistance: NUMBER, rate: NUMBER, passengers: NUMBER)
+        CALL SUPER(pickup, dropoff, rideRoute, rideDistance, rate)
+        IF passengers GREATER THAN 0 THEN
+            SET passenger_count TO passengers
+        ELSE
+            SET passenger_count TO 1
+            DISPLAY "INVALID PASSENGER COUNT, DEFAULT 1 USED"
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        CALCULATE_FARE()
+            RETURN SUPER.CALCULATE_FARE() / passenger_count
+        END METHOD
+END CLASS
+CLASS PREMIUM_RIDE INHERITS RIDE
+    ATTRIBUTES
+        PRIVATE premium_rate_per_km: NUMBER
+        PRIVATE comfort_surcharge: NUMBER
+    CONSTRUCTOR(pickup: TEXT, dropoff: TEXT, rideRoute: ROUTE, rideDistance: NUMBER, rate: NUMBER, surcharge: NUMBER)
+        CALL SUPER(pickup, dropoff, rideRoute, rideDistance)
+        SET premium_rate_per_km TO rate
+        SET comfort_surcharge TO surcharge
+    END CONSTRUCTOR
+    METHODS
+        CALCULATE_FARE()
+            RETURN GET_DISTANCE() * premium_rate_per_km + comfort_surcharge
+        END METHOD
+END CLASS
+START
+    BEGIN
+        CREATE OBJECT route1 OF ROUTE()
+
+        CREATE OBJECT waypoint1 OF WAYPOINT("Muscat")
+        CREATE OBJECT waypoint2 OF WAYPOINT("Al Khuwair")
+        CREATE OBJECT waypoint3 OF WAYPOINT("Seeb")
+
+        CALL route1.ADD_WAYPOINT(waypoint1)
+        CALL route1.ADD_WAYPOINT(waypoint2)
+        CALL route1.ADD_WAYPOINT(waypoint3)
+
+        CREATE OBJECT standardRide1 OF STANDARD_RIDE("Muscat", "Seeb", route1, 20, 0.30)
+
+        CREATE OBJECT premiumRide1 OF PREMIUM_RIDE("Muscat", "Seeb", route1, 20, 0.60, 2)
+
+        CREATE OBJECT sharedRide1 OF SHARED_RIDE("Muscat", "Seeb", route1, 20, 0.30, 2)
+
+        DISPLAY standardRide1.CALCULATE_FARE()
+
+        DISPLAY premiumRide1.CALCULATE_FARE()
+
+        DISPLAY sharedRide1.CALCULATE_FARE()
+    END
+STOP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
