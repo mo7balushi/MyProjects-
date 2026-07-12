@@ -181,3 +181,656 @@ START
         DISPLAY policy1.CALCULATE_TOTAL_PAYOUT()
     END
 STOP
+__________________________________________________________________________________________________________
+TASK 309: University Library Loans
+
+CLASS CONDITION_REPORT
+    ATTRIBUTES
+        PRIVATE report_id: NUMBER
+        PRIVATE damage_notes: TEXT
+
+    CONSTRUCTOR(reportId: NUMBER, notes: TEXT)
+        SET report_id TO reportId
+        SET damage_notes TO notes
+    END CONSTRUCTOR
+
+    METHODS
+        GET_DAMAGE_NOTES()
+            RETURN damage_notes
+        END METHOD
+END CLASS
+
+
+CLASS LOAN_ITEM
+    ATTRIBUTES
+        PRIVATE title: TEXT
+        PRIVATE barcode: TEXT
+        PRIVATE loan_duration: NUMBER
+        PRIVATE condition_report: CONDITION_REPORT
+
+    CONSTRUCTOR(itemTitle: TEXT, itemBarcode: TEXT, duration: NUMBER, report: CONDITION_REPORT)
+        SET title TO itemTitle
+        SET barcode TO itemBarcode
+        SET condition_report TO report
+
+        IF duration GREATER THAN 0 THEN
+            SET loan_duration TO duration
+        ELSE
+            SET loan_duration TO 1
+        END IF
+    END CONSTRUCTOR
+
+    METHODS
+        GET_TITLE()
+            RETURN title
+        END METHOD
+
+        GET_LOAN_DURATION()
+            RETURN loan_duration
+        END METHOD
+
+        CALCULATE_LATE_FEE(daysOverdue: NUMBER)
+            RETURN 0
+        END METHOD
+
+        CAN_RENEW(daysOverdue: NUMBER)
+            RETURN TRUE
+        END METHOD
+END CLASS
+
+
+CLASS STANDARD_BOOK INHERITS LOAN_ITEM
+    ATTRIBUTES
+        PRIVATE flat_fee_per_day: NUMBER
+
+    CONSTRUCTOR(itemTitle: TEXT, itemBarcode: TEXT, duration: NUMBER, report: CONDITION_REPORT, feePerDay: NUMBER)
+        CALL SUPER(itemTitle, itemBarcode, duration, report)
+
+        IF feePerDay GREATER THAN 0 THEN
+            SET flat_fee_per_day TO feePerDay
+        ELSE
+            SET flat_fee_per_day TO 0
+        END IF
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_LATE_FEE(daysOverdue: NUMBER)
+            IF daysOverdue GREATER THAN 0 THEN
+                RETURN daysOverdue * flat_fee_per_day
+            ELSE
+                RETURN 0
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS REFERENCE_TEXTBOOK INHERITS LOAN_ITEM
+    ATTRIBUTES
+        PRIVATE high_fee_per_day: NUMBER
+
+    CONSTRUCTOR(itemTitle: TEXT, itemBarcode: TEXT, report: CONDITION_REPORT, feePerDay: NUMBER)
+        CALL SUPER(itemTitle, itemBarcode, 1, report)
+
+        IF feePerDay GREATER THAN 0 THEN
+            SET high_fee_per_day TO feePerDay
+        ELSE
+            SET high_fee_per_day TO 0
+        END IF
+    END CONSTRUCTOR
+
+    METHODS
+        CALCULATE_LATE_FEE(daysOverdue: NUMBER)
+            IF daysOverdue GREATER THAN 0 THEN
+                RETURN daysOverdue * high_fee_per_day
+            ELSE
+                RETURN 0
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS JOURNAL_ISSUE INHERITS REFERENCE_TEXTBOOK
+    ATTRIBUTES
+        PRIVATE issue_number: NUMBER
+
+    CONSTRUCTOR(itemTitle: TEXT, itemBarcode: TEXT, report: CONDITION_REPORT, feePerDay: NUMBER, issueNumber: NUMBER)
+        CALL SUPER(itemTitle, itemBarcode, report, feePerDay)
+        SET issue_number TO issueNumber
+    END CONSTRUCTOR
+
+    METHODS
+        CAN_RENEW(daysOverdue: NUMBER)
+            IF daysOverdue GREATER THAN 0 THEN
+                RETURN FALSE
+            ELSE
+                RETURN TRUE
+            END IF
+        END METHOD
+END CLASS
+
+
+CLASS STUDENT_ACCOUNT
+    ATTRIBUTES
+        PRIVATE student_id: NUMBER
+        PRIVATE student_name: TEXT
+        PRIVATE loan_items: LIST<LOAN_ITEM>[]
+
+    CONSTRUCTOR(studentId: NUMBER, studentName: TEXT)
+        SET student_id TO studentId
+        SET student_name TO studentName
+        SET loan_items TO EMPTY LIST
+    END CONSTRUCTOR
+
+    METHODS
+        ADD_LOAN_ITEM(item: LOAN_ITEM)
+            ADD item TO loan_items
+            DISPLAY "ITEM ADDED TO STUDENT LOANS"
+        END METHOD
+
+        CALCULATE_TOTAL_LATE_FEES(daysOverdue: NUMBER)
+            SET total TO 0
+
+            REPEAT FROM I = 0 TO SIZE OF loan_items - 1
+                SET total TO total + loan_items[I].CALCULATE_LATE_FEE(daysOverdue)
+            END REPEAT
+
+            RETURN total
+        END METHOD
+
+        VIEW_LOANS()
+            REPEAT FROM I = 0 TO SIZE OF loan_items - 1
+                DISPLAY loan_items[I].GET_TITLE()
+            END REPEAT
+        END METHOD
+END CLASS
+
+
+START
+    BEGIN
+        CREATE OBJECT report1 OF CONDITION_REPORT(1, "No damage")
+        CREATE OBJECT report2 OF CONDITION_REPORT(2, "Small mark on cover")
+        CREATE OBJECT report3 OF CONDITION_REPORT(3, "Good condition")
+
+        CREATE OBJECT book1 OF STANDARD_BOOK("OOP Basics", "B001", 14, report1, 0.5)
+        CREATE OBJECT textbook1 OF REFERENCE_TEXTBOOK("Advanced Database", "R001", report2, 5)
+        CREATE OBJECT journal1 OF JOURNAL_ISSUE("AI Journal", "J001", report3, 5, 12)
+
+        CREATE OBJECT student1 OF STUDENT_ACCOUNT(101, "Mohammed")
+
+        CALL student1.ADD_LOAN_ITEM(book1)
+        CALL student1.ADD_LOAN_ITEM(textbook1)
+        CALL student1.ADD_LOAN_ITEM(journal1)
+
+        CALL student1.VIEW_LOANS()
+
+        DISPLAY student1.CALCULATE_TOTAL_LATE_FEES(2)
+
+        DISPLAY journal1.CAN_RENEW(2)
+    END
+STOP
+____________________________________________________________________________________________________________
+TASK 310: Theme Park Ride Queues
+CLASS SAFETY_INSPECTION_LOG
+    ATTRIBUTES
+        PRIVATE inspection_date: TEXT
+        PRIVATE outcome: TEXT
+    CONSTRUCTOR(dateValue: TEXT, inspectionOutcome: TEXT)
+        SET inspection_date TO dateValue
+        SET outcome TO inspectionOutcome
+    END CONSTRUCTOR
+    METHODS
+        GET_OUTCOME()
+            RETURN outcome
+        END METHOD
+END CLASS
+CLASS RIDE
+    ATTRIBUTES
+        PRIVATE name: TEXT
+        PRIVATE location: TEXT
+        PRIVATE people_in_line: NUMBER
+        PRIVATE safety_log: SAFETY_INSPECTION_LOG 
+    CONSTRUCTOR(rideName: TEXT, rideLocation: TEXT, people: NUMBER, log: SAFETY_INSPECTION_LOG)
+        SET name TO rideName
+        SET location TO rideLocation
+        SET safety log TO log
+        IF people GREATER THAN OR EQUAL TO 0 THEN
+            SET people_in_line TO people
+        ELSE
+            SET people_in_line TO 0
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        GET_PEOPLE_IN_LINE()
+            RETURN people_in_line
+        END METHOD
+        GET_NAME()
+            RETURN name
+        END METHOD
+        CALCULATE_WAIT_TIME()
+            RETURN 0
+        END METHOD
+END CLASS
+CLASS ROLLER_COASTER INHERITS RIDE
+    ATTRIBUTES
+        PRIVATE capacity_per_train: NUMBER
+        PRIVATE cycle_time: NUMBER
+    CONSTRUCTOR(rideName: TEXT, rideLocation: TEXT, people: NUMBER, log: SAFETY_INSPECTION_LOG, capacity: NUMBER, cycle: NUMBER)
+        CALL SUPER(rideName, rideLocation, people, log)
+        IF capacity GREATER THAN 0 THEN
+            SET capacity_per_train TO capacity
+        ELSE
+            SET capacity_per_train TO 1
+        END IF
+        IF cycle GREATER THAN 0 THEN
+            SET cycle_time TO cycle
+        ELSE
+            SET cycle_time TO 1
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        CALCULATE_WAIT_TIME()
+            RETURN (GET_PEOPLE_IN_LINE() / capacity_per_train) * cycle_time
+        END METHOD
+END CLASS
+CLASS WATER_RIDE INHERITS RIDE
+    ATTRIBUTES
+        PRIVATE boat_capacity: NUMBER
+        PRIVATE cycle_time: NUMBER
+        PRIVATE loading_time: NUMBER
+    CONSTRUCTOR(rideName: TEXT, rideLocation: TEXT, people: NUMBER, log: SAFETY_INSPECTION_LOG, capacity: NUMBER, cycle: NUMBER, loading: NUMBER)
+        CALL SUPER(rideName, rideLocation, people, log)
+        SET boat_capacity TO capacity
+        SET cycle_time TO cycle
+        SET loading_time TO loading
+    END CONSTRUCTOR
+    METHODS
+        CALCULATE_WAIT_TIME()
+            RETURN (GET_PEOPLE_IN_LINE() / boat_capacity) * (cycle_time + loading_time)
+        END METHOD
+END CLASS
+CLASS VIP_ACCESS_RIDE INHERITS ROLLER_COASTER
+    ATTRIBUTES
+        PRIVATE vip_people: NUMBER
+        PRIVATE standard_people: NUMBER
+    CONSTRUCTOR(rideName: TEXT, rideLocation: TEXT, people: NUMBER, log: SAFETY_INSPECTION_LOG, capacity: NUMBER, cycle: NUMBER, vipCount: NUMBER, standardCount: NUMBER)
+        CALL SUPER(rideName, rideLocation, people, log, capacity, cycle)
+        SET vip_people TO vipCount
+        SET standard_people TO standardCount
+    END CONSTRUCTOR
+    METHODS
+        CALCULATE_VIP_WAIT_TIME()
+            RETURN (vip_people / capacity_per_train) * cycle_time
+        END METHOD
+        CALCULATE_STANDARD_WAIT_TIME()
+            RETURN ((vip_people + standard_people) / capacity_per_train) * cycle_time
+        END METHOD
+END CLASS
+CLASS PARK
+    ATTRIBUTES
+        PRIVATE park_name: TEXT
+        PRIVATE rides: LIST<RIDE>[]
+    CONSTRUCTOR(name: TEXT)
+        SET park_name TO name
+        SET rides TO EMPTY LIST
+    END CONSTRUCTOR
+    METHODS
+        ADD_RIDE(newRide: RIDE)
+            ADD newRide TO rides
+            DISPLAY "RIDE ADDED TO PARK"
+        END METHOD
+        VIEW_RIDES()
+            REPEAT FROM I = 0 TO SIZE OF rides - 1
+                DISPLAY rides[I].GET_NAME()
+                DISPLAY rides[I].CALCULATE_WAIT_TIME()
+            END REPEAT
+        END METHOD
+END CLASS
+START
+    BEGIN
+        CREATE OBJECT log1 OF SAFETY_INSPECTION_LOG("2026-07-01", "PASSED")
+        CREATE OBJECT log2 OF SAFETY_INSPECTION_LOG("2026-07-02", "PASSED")
+        CREATE OBJECT log3 OF SAFETY_INSPECTION_LOG("2026-07-03", "PASSED")
+        CREATE OBJECT coaster1 OF ROLLER_COASTER("Dragon Coaster", "Zone A", 100, log1, 20, 5)
+        CREATE OBJECT waterRide1 OF WATER_RIDE("River Splash", "Zone B", 80, log2, 10, 4, 2)
+        CREATE OBJECT vipRide1 OF VIP_ACCESS_RIDE("VIP Thunder", "Zone C", 90, log3, 15, 5, 20, 70)
+        CREATE OBJECT park1 OF PARK("Fun Land")
+        CALL park1.ADD_RIDE(coaster1)
+        CALL park1.ADD_RIDE(waterRide1)
+        CALL park1.ADD_RIDE(vipRide1)
+        CALL park1.VIEW_RIDES()
+        DISPLAY vipRide1.CALCULATE_VIP_WAIT_TIME()
+        DISPLAY vipRide1.CALCULATE_STANDARD_WAIT_TIME()
+    END
+STOP
+_________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+ TASK 311: Freelancer Invoicing Platform
+
+CLASS PAYMENT_TERMS
+    ATTRIBUTES
+        PRIVATE due_date: TEXT
+        PRIVATE late_interest_rate: NUMBER
+
+    CONSTRUCTOR(dueDate: TEXT, interestRate: NUMBER)
+        SET due_date TO dueDate
+
+        IF interestRate GREATER THAN OR EQUAL TO 0 THEN
+            SET late_interest_rate TO interestRate
+        ELSE
+            SET late_interest_rate TO 0
+        END IF
+    END CONSTRUCTOR
+
+    METHODS
+        GET_DUE_DATE()
+            RETURN due_date
+        END METHOD
+
+        GET_INTEREST_RATE()
+            RETURN late_interest_rate
+        END METHOD
+END CLASS
+
+
+CLASS HOUR_ENTRY
+    ATTRIBUTES
+        PRIVATE hours: NUMBER
+        PRIVATE approved: BOOLEAN
+
+    CONSTRUCTOR(entryHours: NUMBER, isApproved: BOOLEAN)
+        IF entryHours GREATER THAN 0 THEN
+            SET hours TO entryHours
+        ELSE
+            SET hours TO 0
+        END IF
+
+        SET approved TO isApproved
+    END CONSTRUCTOR
+    METHODS
+        GET_HOURS()
+            RETURN hours
+        END METHOD
+
+        IS_APPROVED()
+            RETURN approved
+        END METHOD
+END CLASS
+CLASS INVOICE
+    ATTRIBUTES
+        PRIVATE invoice_number: NUMBER
+        PRIVATE date_issued: TEXT
+        PRIVATE client_name: TEXT
+        PRIVATE payment_terms: PAYMENT_TERMS
+    CONSTRUCTOR(invoiceNumber: NUMBER, issuedDate: TEXT, clientName: TEXT, terms: PAYMENT_TERMS)
+        SET invoice_number TO invoiceNumber
+        SET date_issued TO issuedDate
+        SET client_name TO clientName
+        SET payment_terms TO terms
+    END CONSTRUCTOR
+    METHODS
+        GET_CLIENT_NAME()
+            RETURN client_name
+        END METHOD
+        CALCULATE_TOTAL_AMOUNT()
+            RETURN 0
+        END METHOD
+END CLASS
+CLASS FIXED_PRICE_INVOICE INHERITS INVOICE
+    ATTRIBUTES
+        PRIVATE project_fee: NUMBER
+    CONSTRUCTOR(invoiceNumber: NUMBER, issuedDate: TEXT, clientName: TEXT, terms: PAYMENT_TERMS, fee: NUMBER)
+        CALL SUPER(invoiceNumber, issuedDate, clientName, terms)
+        IF fee GREATER THAN 0 THEN
+            SET project_fee TO fee
+        ELSE
+            SET project_fee TO 0
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        CALCULATE_TOTAL_AMOUNT()
+            RETURN project_fee
+        END METHOD
+END CLASS
+CLASS HOURLY_INVOICE INHERITS INVOICE
+    ATTRIBUTES
+        PRIVATE hourly_rate: NUMBER
+        PRIVATE hour_entries: LIST<HOUR_ENTRY>[]
+    CONSTRUCTOR(invoiceNumber: NUMBER, issuedDate: TEXT, clientName: TEXT, terms: PAYMENT_TERMS, rate: NUMBER)
+        CALL SUPER(invoiceNumber, issuedDate, clientName, terms)
+        SET hourly_rate TO rate
+        SET hour_entries TO EMPTY LIST
+    END CONSTRUCTOR
+    METHODS
+        ADD_HOUR_ENTRY(entry: HOUR_ENTRY)
+            IF entry.IS_APPROVED() EQUALS TRUE THEN
+                ADD entry TO hour_entries
+                DISPLAY "APPROVED HOUR ENTRY ADDED"
+            ELSE
+                DISPLAY "UNAPPROVED HOURS REJECTED"
+            END IF
+        END METHOD
+        CALCULATE_TOTAL_AMOUNT()
+            SET totalHours TO 0
+            REPEAT FROM I = 0 TO SIZE OF hour_entries - 1
+                SET totalHours TO totalHours + hour_entries[I].GET_HOURS()
+            END REPEAT
+            RETURN totalHours * hourly_rate
+        END METHOD
+END CLASS
+CLASS RETAINER_INVOICE INHERITS FIXED_PRICE_INVOICE
+    ATTRIBUTES
+        PRIVATE included_hours: NUMBER
+        PRIVATE extra_hours: NUMBER
+        PRIVATE extra_hourly_rate: NUMBER
+    CONSTRUCTOR(invoiceNumber: NUMBER, issuedDate: TEXT, clientName: TEXT, terms: PAYMENT_TERMS, fee: NUMBER, included: NUMBER, extra: NUMBER, extraRate: NUMBER)
+        CALL SUPER(invoiceNumber, issuedDate, clientName, terms, fee)
+        SET included_hours TO included
+        SET extra_hours TO extra
+        SET extra_hourly_rate TO extraRate
+    END CONSTRUCTOR
+    METHODS
+        CALCULATE_EXTRA_CHARGES()
+            IF extra_hours GREATER THAN included_hours THEN
+                RETURN (extra_hours - included_hours) * extra_hourly_rate
+            ELSE
+                RETURN 0
+            END IF
+        END METHOD
+        CALCULATE_TOTAL_AMOUNT()
+            RETURN SUPER.CALCULATE_TOTAL_AMOUNT() + CALCULATE_EXTRA_CHARGES()
+        END METHOD
+END CLASS
+CLASS FREELANCER_ACCOUNT
+    ATTRIBUTES
+        PRIVATE freelancer_id: NUMBER
+        PRIVATE freelancer_name: TEXT
+        PRIVATE invoices: LIST<INVOICE>[]
+
+    CONSTRUCTOR(freelancerId: NUMBER, freelancerName: TEXT)
+        SET freelancer_id TO freelancerId
+        SET freelancer_name TO freelancerName
+        SET invoices TO EMPTY LIST
+    END CONSTRUCTOR
+    METHODS
+        ADD_INVOICE(newInvoice: INVOICE)
+            ADD newInvoice TO invoices
+            DISPLAY "INVOICE ADDED"
+        END METHOD
+        CALCULATE_TOTAL_INVOICED()
+            SET total TO 0
+            REPEAT FROM I = 0 TO SIZE OF invoices - 1
+                SET total TO total + invoices[I].CALCULATE_TOTAL_AMOUNT()
+            END REPEAT
+            RETURN total
+        END METHOD
+END CLASS
+START
+    BEGIN
+        CREATE OBJECT terms1 OF PAYMENT_TERMS("2026-08-01", 2)
+        CREATE OBJECT fixedInvoice OF FIXED_PRICE_INVOICE(1, "2026-07-01", "Client A", terms1, 1000)
+        CREATE OBJECT hourlyInvoice OF HOURLY_INVOICE(2, "2026-07-02", "Client B", terms1, 20)
+        CREATE OBJECT entry1 OF HOUR_ENTRY(5, TRUE)
+        CREATE OBJECT entry2 OF HOUR_ENTRY(3, FALSE)
+        CALL hourlyInvoice.ADD_HOUR_ENTRY(entry1)
+        CALL hourlyInvoice.ADD_HOUR_ENTRY(entry2)
+        CREATE OBJECT retainerInvoice OF RETAINER_INVOICE(3, "2026-07-03", "Client C", terms1, 800, 10, 15, 25)
+        CREATE OBJECT account1 OF FREELANCER_ACCOUNT(101, "Mohammed")
+        CALL account1.ADD_INVOICE(fixedInvoice)
+        CALL account1.ADD_INVOICE(hourlyInvoice)
+        CALL account1.ADD_INVOICE(retainerInvoice)
+        DISPLAY account1.CALCULATE_TOTAL_INVOICED()
+    END
+STOP
+______________________________________________________________________________________________________________________________________________________________________________
+
+TASK 312: Data Center Server Management
+CLASS HARDWARE_SPECIFICATION
+    ATTRIBUTES
+        PRIVATE cpu: TEXT
+        PRIVATE ram: TEXT
+        RIVATE storage: TEXT
+    CONSTRUCTOR(cpuValue: TEXT, ramValue: TEXT, storageValue: TEXT)
+        SET cpu TO cpuValue
+        SET ram TO ramValue
+        SET storage TO storageValue
+    END CONSTRUCTOR
+    METHODS
+        GET_SPECIFICATION()
+            DISPLAY cpu
+            DISPLAY ram
+            DISPLAY storage
+        END METHOD
+END CLASS
+CLASS SERVER
+    ATTRIBUTES
+        PRIVATE serial_number: TEXT
+        PRIVATE uptime: NUMBER
+        PRIVATE hardware_specification: HARDWARE_SPECIFICATION
+    CONSTRUCTOR(serial: TEXT, uptimeValue: NUMBER, hardware: HARDWARE_SPECIFICATION)
+        SET serial_number TO serial
+        SET hardware_specification TO hardware
+        IF uptimeValue GREATER THAN OR EQUAL TO 0 THEN
+            SET uptime TO uptimeValue
+        ELSE
+            SET uptime TO 0
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        GET_SERIAL_NUMBER()
+            RETURN serial_number
+        END METHOD
+        CALCULATE_LOAD_PERCENTAGE()
+            RETURN 0
+        END METHOD
+END CLASS
+CLASS WEB_SERVER INHERITS SERVER
+    ATTRIBUTES
+        PRIVATE active_connections: NUMBER
+        PRIVATE max_connections: NUMBER
+    CONSTRUCTOR(serial: TEXT, uptimeValue: NUMBER, hardware: HARDWARE_SPECIFICATION, active: NUMBER, maximum: NUMBER)
+        CALL SUPER(serial, uptimeValue, hardware)
+        SET active_connections TO active
+        IF maximum GREATER THAN 0 THEN
+            SET max_connections TO maximum
+        ELSE
+            SET max_connections TO 1
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        CALCULATE_LOAD_PERCENTAGE()
+            RETURN (active_connections / max_connections) * 100
+        END METHOD
+END CLASS
+CLASS DATABASE_SERVER INHERITS SERVER
+    ATTRIBUTES
+        PRIVATE query_throughput: NUMBER
+        PRIVATE max_queries_per_second: NUMBER
+        PRIVATE current_connections: NUMBER
+    CONSTRUCTOR(serial: TEXT, uptimeValue: NUMBER, hardware: HARDWARE_SPECIFICATION, throughput: NUMBER, maxQps: NUMBER)
+        CALL SUPER(serial, uptimeValue, hardware)
+        SET query_throughput TO throughput
+        SET current_connections TO 0
+        IF maxQps GREATER THAN 0 THEN
+            SET max_queries_per_second TO maxQps
+        ELSE
+            SET max_queries_per_second TO 1
+        END IF
+    END CONSTRUCTOR
+    METHOD
+        CALCULATE_LOAD_PERCENTAGE()
+            RETURN (query_throughput / max_queries_per_second) * 100
+        END METHOD
+        ACCEPT_CONNECTION()
+            IF CALCULATE_LOAD_PERCENTAGE() GREATER THAN OR EQUAL TO 100 THEN
+                DISPLAY "SERVER FULL. CONNECTION REJECTED"
+                RETURN FALSE
+            ELSE
+                SET current_connections TO current_connections + 1
+                DISPLAY "CONNECTION ACCEPTED"
+                RETURN TRUE
+            END IF
+        END METHOD
+END CLASS
+CLASS CACHE_SERVER INHERITS DATABASE_SERVER
+    ATTRIBUTES
+        PRIVATE cache_hit_ratio: NUMBER
+    CONSTRUCTOR(serial: TEXT, uptimeValue: NUMBER, hardware: HARDWARE_SPECIFICATION, throughput: NUMBER, maxQps: NUMBER, hitRatio: NUMBER)
+        CALL SUPER(serial, uptimeValue, hardware, throughput, maxQps)
+        IF hitRatio GREATER THAN OR EQUAL TO 0 AND hitRatio LESS THAN OR EQUAL TO 1 THEN
+            SET cache_hit_ratio TO hitRatio
+        ELSE
+            SET cache_hit_ratio TO 0
+        END IF
+    END CONSTRUCTOR
+    METHODS
+        CALCULATE_LOAD_PERCENTAGE()
+            SET baseLoad TO SUPER.CALCULATE_LOAD_PERCENTAGE()
+            RETURN baseLoad * (1 - cache_hit_ratio)
+        END METHOD
+END CLASS
+CLASS RACK
+    ATTRIBUTES
+        PRIVATE rack_id: NUMBER
+        PRIVATE location: TEXT
+        PRIVATE servers: LIST<SERVER>[]
+    CONSTRUCTOR(rackId: NUMBER, rackLocation: TEXT)
+        SET rack_id TO rackId
+        SET location TO rackLocation
+        SET servers TO EMPTY LIST
+    END CONSTRUCTOR
+    METHODS
+        ADD_SERVER(newServer: SERVER)
+            ADD newServer TO servers
+            DISPLAY "SERVER ADDED TO RACK"
+        END METHOD
+        CALCULATE_AVERAGE_LOAD()
+            IF SIZE OF servers EQUALS 0 THEN
+                RETURN 0
+            END IF
+            SET total TO 0
+            REPEAT FROM I = 0 TO SIZE OF servers - 1
+                SET total TO total + servers[I].CALCULATE_LOAD_PERCENTAGE()
+            END REPEAT
+            RETURN total / SIZE OF servers
+        END METHOD
+END CLASS
+START
+    BEGIN
+        CREATE OBJECT hardware1 OF HARDWARE_SPECIFICATION("Intel Xeon", "64GB", "2TB SSD")
+        CREATE OBJECT hardware2 OF HARDWARE_SPECIFICATION("AMD EPYC", "128GB", "4TB SSD")
+        CREATE OBJECT hardware3 OF HARDWARE_SPECIFICATION("Intel Xeon", "256GB", "8TB SSD")
+        CREATE OBJECT webServer1 OF WEB_SERVER("WEB001", 1000, hardware1, 500, 1000)
+        CREATE OBJECT dbServer1 OF DATABASE_SERVER("DB001", 2000, hardware2, 800, 1000)
+        CREATE OBJECT cacheServer1 OF CACHE_SERVER("CACHE001", 1500, hardware3, 800, 1000, 0.75)
+        CREATE OBJECT rack1 OF RACK(1, "Rack A")
+        CALL rack1.ADD_SERVER(webServer1)
+        CALL rack1.ADD_SERVER(dbServer1)
+        CALL rack1.ADD_SERVER(cacheServer1)
+        CALL dbServer1.ACCEPT_CONNECTION()
+        DISPLAY webServer1.CALCULATE_LOAD_PERCENTAGE()
+        DISPLAY dbServer1.CALCULATE_LOAD_PERCENTAGE()
+        DISPLAY cacheServer1.CALCULATE_LOAD_PERCENTAGE()
+        DISPLAY rack1.CALCULATE_AVERAGE_LOAD()
+    END
+STOP
+____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
